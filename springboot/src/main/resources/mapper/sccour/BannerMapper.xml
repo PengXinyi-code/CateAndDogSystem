@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fast.succour.mapper.BannerMapper">
+
+    <resultMap type="Banner" id="BannerResult">
+        <result property="bannerId"    column="banner_id"    />
+        <result property="image"    column="image"    />
+        <result property="sort"    column="sort"    />
+    </resultMap>
+
+    <select id="selectBannerList" parameterType="Banner" resultMap="BannerResult">
+        select banner_id, image, sort from banner
+        order by sort
+    </select>
+
+    <select id="selectBannerByBannerId" parameterType="String" resultMap="BannerResult">
+        select banner_id, image, sort from banner
+        where banner_id = #{bannerId}
+    </select>
+
+    <insert id="insertBanner" parameterType="Banner">
+        insert into banner
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bannerId != null and bannerId != ''">banner_id,</if>
+            <if test="image != null and image != ''">image,</if>
+            <if test="sort != null">sort,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bannerId != null and bannerId != ''">#{bannerId},</if>
+            <if test="image != null and image != ''">#{image},</if>
+            <if test="sort != null">#{sort},</if>
+        </trim>
+    </insert>
+
+    <update id="updateBanner" parameterType="Banner">
+        update banner
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="image != null and image != ''">image = #{image},</if>
+            <if test="sort != null">sort = #{sort},</if>
+        </trim>
+        where banner_id = #{bannerId}
+    </update>
+
+    <delete id="deleteBannerByBannerIds" parameterType="String">
+        delete from banner where banner_id in
+        <foreach item="bannerId" collection="array" open="(" separator="," close=")">
+            #{bannerId}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+torch
+torchvision
+pillow
+numpy
+pymysql
+tqdm
+
+#到模型根目录下面：cd photo_recognize
+#启动模型：uvicorn main:app --port 8000
+

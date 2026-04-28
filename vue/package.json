@@ -1,0 +1,44 @@
+{
+  "name": "huacai",
+  "version": "1.0.0",
+  "description": "后台管理端",
+  "author": "花菜",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build:prod": "vite build",
+    "build:stage": "vite build --mode staging",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "2.3.1",
+    "axios": "0.28.1",
+    "echarts": "5.5.1",
+    "element-plus": "2.12.0",
+    "pinia": "2.1.7",
+    "vue": "3.4.31",
+    "vue-cropper": "1.1.1",
+    "vue-router": "4.4.0",
+    "vxe-pc-ui": "4.5.35",
+    "vxe-table": "4.13.17",
+    "@wangeditor/editor": "^5.1.23",
+    "@wangeditor/editor-for-vue": "^5.1.12",
+    "@wangeditor/plugin-md": "^1.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "5.0.5",
+    "sass": "1.77.5",
+    "unplugin-auto-import": "0.17.6",
+    "unplugin-vue-setup-extend-plus": "1.0.1",
+    "vite": "5.3.2",
+    "vite-plugin-compression": "0.5.1",
+    "vite-plugin-svg-icons": "2.0.1"
+  },
+  "overrides": {
+    "quill": "2.0.2"
+  }
+}
