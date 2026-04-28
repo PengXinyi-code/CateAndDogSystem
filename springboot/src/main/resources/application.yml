@@ -1,0 +1,76 @@
+# 项目相关配置
+fast:
+  # 文件路径
+  profile: ./file
+
+# 开发环境配置
+server:
+  # 服务器的HTTP端口，默认为8080
+  port: 8080
+  servlet:
+    # 应用的访问路径
+    context-path: /
+  tomcat:
+    #存放临时文件
+    basedir: ./temp
+    # tomcat的URI编码
+    uri-encoding: UTF-8
+    # 连接数满后的排队数，默认为100
+    accept-count: 1000
+    threads:
+      # tomcat最大线程数，默认为200
+      max: 800
+      # Tomcat启动初始化的线程数，默认值10
+      min-spare: 100
+
+# 日志配置
+logging:
+  level:
+    com.fast: debug
+    org.springframework: warn
+
+# Spring配置
+spring:
+  profiles:
+    active: druid
+  # 文件上传
+  servlet:
+    multipart:
+      # 单个文件大小
+      max-file-size: 10MB
+      # 设置总上传的文件大小
+      max-request-size: 20MB
+  web:
+    resources:
+      static-locations: classpath:/static/,file:./src/main/resources/static/
+
+# token配置
+token:
+  # 令牌自定义标识
+  header: Authorization
+  # 令牌密钥
+  secret: abcdefghijklmnopqrstuvwxyz
+  # 令牌有效期（默认300分钟）
+  expireTime: 300
+
+# MyBatis配置
+mybatis:
+  # 搜索指定包别名
+  typeAliasesPackage: com.fast.**.domain
+  # 配置mapper的扫描，找到所有的mapper.xml映射文件
+  mapperLocations: classpath*:mapper/**/*Mapper.xml
+  # 加载全局的配置文件
+  configLocation: classpath:mybatis/mybatis-config.xml
+  configuration:
+    mapUnderscoreToCamelCase: true
+    map-underscore-to-camel-case: true
+
+# PageHelper分页插件
+pagehelper:
+  helperDialect: mysql
+  supportMethodsArguments: true
+  params: count=countSql
+
+#图片上传
+upload:
+  path: E:\tmp\Cat-and-Dog-System\springboot\src\main\resources\static\uploads\images
