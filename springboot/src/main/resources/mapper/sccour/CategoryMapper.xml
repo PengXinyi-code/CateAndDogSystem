@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fast.succour.mapper.CategoryMapper">
+    <resultMap id="CategoryResult" type="Category">
+        <id property="categoryId" column="category_id"/>
+        <result property="name" column="name"/>
+        <result property="sort" column="sort"/>
+    </resultMap>
+
+    <!--查询动物分类列表,并且根据排序字段正序排序-->
+    <select id="selectCategoryList" parameterType="Category" resultMap="CategoryResult">
+        select category_id,name,sort
+        from category
+        <where>
+            <if test="name != null and name !=''"> and name like concat('%',#{name},'%')</if>
+        </where>
+        order by sort
+    </select>
+
+    <!--查询动物详细信息-->
+    <select id="selectCategoryByCategoryId" parameterType="String" resultMap="CategoryResult">
+        select category_id,name,sort
+        from category
+        where category_id = #{categoryId}
+    </select>
+
+    <!--新增萌宠分类-->
+    <insert id="insertCategory" parameterType="Category">
+        insert into category
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">category_id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="sort != null">sort,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="sort != null">#{sort},</if>
+        </trim>
+    </insert>
+
+    <!--修改动物信息-->
+    <update id="updateCategory" parameterType="Category">
+        update category
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name!=null and name !=''">name=#{name},</if>
+            <if test="sort!=null">sort=#{sort},</if>
+        </trim>
+        where category_id = #{categoryId}
+    </update>
+
+    <!--删除动物信息-->
+    <delete id="deleteCategoryByCategoryIds" parameterType="String">
+        delete from category where category_id in
+        <foreach collection="array" item="categoryId" open="(" separator="," close=")">
+            #{categoryId}
+        </foreach>
+    </delete>
+</mapper>
