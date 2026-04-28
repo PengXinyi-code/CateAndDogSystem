@@ -58,7 +58,7 @@ public class AnimalServiceImp implements AnimalService {
             String fileName = System.currentTimeMillis() + "_" + UUID.randomUUID() + suffix;
 
             // 固定磁盘目录
-            String uploadDir = "D:/Desktop/CateAndDogSystem/springboot/src/main/resources/static/uploads/images/";
+            String uploadDir = "E:/tmp/Cat-and-Dog-System/springboot/src/main/resources/static/uploads/images/";
             File dest = new File(uploadDir + fileName);
             dest.getParentFile().mkdirs();
 
@@ -159,7 +159,7 @@ public class AnimalServiceImp implements AnimalService {
                     
                     // 去掉 /uploads/images/ 前缀，获取文件名
                     String fileName = imageUrl.replace("/uploads/images/", "");
-                    String uploadDir = "E:/Cat-and-Dog-System/springboot/src/main/resources/static/uploads/images/";
+                    String uploadDir = "D:/Desktop/CateAndDogSystem/springboot/src/main/resources/static/uploads/images";
                     String fullPath = uploadDir + fileName;
                     File fileToDelete = new File(fullPath);
                     

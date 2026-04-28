@@ -73,4 +73,4 @@ pagehelper:
 
 #图片上传
 upload:
-  path: E:\tmp\Cat-and-Dog-System\springboot\src\main\resources\static\uploads\images
+  path: D:\Desktop\CateAndDogSystem\springboot\src\main\resources\static\uploads\images
