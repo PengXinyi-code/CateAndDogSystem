@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fast.succour.mapper.AnimalImageMapper">
+    <resultMap id="AnimalImageResult" type="AnimalImage">
+        <id property="id" column="id"/>
+        <result property="animalId" column="animal_id"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="featureVector" column="feature_vector"/>
+    </resultMap>
+
+    <!--查询所有信息-->
+    <select id="findAll" resultMap="AnimalImageResult">
+        select id,animal_id,image_url,feature_vector from animal_images
+    </select>
+
+    <!--插入图片-->
+    <insert id="insertAnimalImage" parameterType="AnimalImage" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO animal_images (animal_id, image_url,feature_vector)
+        VALUES (#{animalId}, #{imageUrl},#{featureVector})
+    </insert>
+
+    <!--更新图片-->
+    <update id="updateAnimalImage" parameterType="AnimalImage">
+        UPDATE animal_images
+        SET image_url = #{imageUrl}
+        WHERE animal_id = #{animalId}
+    </update>
+
+    <!--删除图片-->
+    <delete id="deleteByAnimalIds" parameterType="String">
+        DELETE FROM animal_images WHERE animal_id IN
+        <foreach collection="array" item="animalId" open="(" separator="," close=")">
+            #{animalId}
+        </foreach>
+    </delete>
+</mapper>

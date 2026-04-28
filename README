@@ -1,0 +1,34 @@
+路径有几个地方需要改一下
+1.application.yml文件(改成自己的照片所在的绝对路径）
+upload:
+  path: E:\Cat-and-Dog-System\springboot\src\main\resources\static\uploads\images
+
+2.AnimalServiceImp类
+insertAnimal这个方法中：(要改路径同上)
+ //固定磁盘目录
+ String uploadDir = "E:/Cat-and-Dog-System/springboot/src/main/resources/static/uploads/images/";
+
+必须修改的配置
+1. 数据库连接配置
+application-druid.yml
+第5行 ：数据库连接URL（需要修改数据库名）
+第6行 ：MySQL用户名
+第7行 ：MySQL密码
+
+2. 图片上传路径配置（3处）
+位置1： application.yml 第76行
+upload:
+path:
+E:\Cat-and-Dog-System\springboot\src\main\resources\static\uploads\images
+
+位置2： ResourcesConfig.java 第24行
+.addResourceLocations("file:E:/Cat-and-Dog-System/springboot/src/main/
+resources/static/uploads/");
+
+位置3： AnimalServiceImp.java 第61行
+String uploadDir ="E:/Cat-and-Dog-System/springboot/src/main/resources/
+static/uploads/images/";
+
+这三处路径需要统一修改为新电脑上的绝对路径
+
+数据库配置也需要根据新电脑的MySQL设置进行修改。
