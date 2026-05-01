@@ -30,11 +30,24 @@
       <el-col :span="12">
         <div class="chart-card">
           <div style="padding: 20px; border-bottom: 1px solid #eee">
-            <div style="font-size: 18px;font-width: bold;color: #333">数据统计</div>
+            <div style="font-size: 18px; font-width: bold;color: #333">数据统计</div>
           </div>
 
           <div style="padding: 20px">
             <div ref="chartRef" style="width: 100%;height: 300px"></div>
+          </div>
+        </div>
+
+      </el-col>
+
+      <el-col :span="12">
+        <div class="chart-card">
+          <div style="padding: 20px; border-bottom: 1px solid #eee">
+            <div style="font-size: 18px; font-width: bold;color: #333">萌宠种类分布</div>
+          </div>
+
+          <div style="padding: 20px">
+            <div ref="pieChartRef" style="width: 100%;height: 300px"></div>
           </div>
         </div>
 
@@ -56,27 +69,91 @@ const animalCount=ref(0);
 const adoptCount=ref(0);
 
 const chartRef=ref(null);
+const pieChartRef=ref(null);
 let chart = null;
+let pieChart = null;
 
-//查询数据
+
 const getData=async ()=>{
-  //获取动物总数
-  const res = await listAnimal()
-  console.log('接口返回的数据：', res)
-  animalCount.value = res.total
+  // 1. 先获取总条数，计算总页数
+  const res = await listAnimal({ pageNum: 1, pageSize: 1000 })
+  animalCount.value = res.total;
 
-//领养模块完成后取消注释
+  // 2. 直接统计所有返回的 rows
+  getPieCategoryData(res.rows)
+
+  //领养模块完成后取消注释
   // //获取领养申请数量
   // await listAdopt().then(res =>{
   //   adoptCount.value=res.total
   // })
 
-  //初始化图表
   initChart()
-
 }
 
+const getPieCategoryData = (animals)=>{
+  const categoryMap={}
+  animals.forEach(animal=>{
+    console.log("动物数据：", animals)
+    const category = animal.species || "未分类";
+    categoryMap[category]=(categoryMap[category]||0)+1;
+  })
 
+  const categoryData=[]
+  Object.keys(categoryMap).forEach((key) => {
+    categoryData.push({
+      name: key,
+      value: categoryMap[key]
+    });
+  })
+
+  initPieChart(categoryData)
+}
+
+//初始化饼状图
+const initPieChart = (categoryData) => {
+  if (!pieChartRef.value) return
+
+  pieChart=echarts.init(pieChartRef.value);
+
+  const option = {
+    tooltip: {
+      trigger: 'item',
+    },
+    legend: {
+      bottom:'bottom',
+    },
+    series: [
+      {
+        name: '萌宠种类分布',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 10,
+          borderColor: '#fff',
+          borderWidth: 2,
+        },
+        label: {
+          show: false,
+          position: 'center',
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: '18',
+            fontWeight: 'bold',
+          }
+        },
+        labelLine: {
+          show: false,
+        },
+        data: categoryData,
+      }
+    ]
+  }
+  pieChart.setOption(option)
+}
 //初始化柱状图
 const initChart = () => {
   if(!chartRef.value) return
