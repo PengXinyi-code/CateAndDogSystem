@@ -58,7 +58,7 @@ public class AnimalServiceImp implements AnimalService {
             String fileName = System.currentTimeMillis() + "_" + UUID.randomUUID() + suffix;
 
             // 固定磁盘目录
-            String uploadDir = "E:/tmp/Cat-and-Dog-System/springboot/src/main/resources/static/uploads/images/";
+            String uploadDir = "file:C:/Users/詹雨莹/Desktop/Cat-and-Dog-System/springboot/src/main/resources/static/uploads/images/";
             File dest = new File(uploadDir + fileName);
             dest.getParentFile().mkdirs();
 
