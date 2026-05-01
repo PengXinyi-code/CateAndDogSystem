@@ -34,7 +34,7 @@
           </div>
 
           <div style="padding: 20px">
-            <div ref="chartRef" style="width: 100%;height: 200px"></div>
+            <div ref="chartRef" style="width: 100%;height: 300px"></div>
           </div>
         </div>
 
@@ -48,7 +48,8 @@
 <script setup>
 import {Medal,User} from "@element-plus/icons-vue";
 import {listAnimal} from "@/api/sccour/animals.js";
-//import {listAdopt} from "@/api/sccour/adopt.js"
+//领养模块完成后取消注释
+//import {listAdopt} from "@/api/sccour/adopt.js";
 import * as echarts from "echarts";
 
 const animalCount=ref(0);
@@ -60,16 +61,19 @@ let chart = null;
 //查询数据
 const getData=async ()=>{
   //获取动物总数
-  await listAnimal().then(res =>{
-    animalCount.value=res.total
-  })
+  const res = await listAnimal()
+  console.log('接口返回的数据：', res)
+  animalCount.value = res.total
 
-  //获取领养申请数量
-  await listAdopt().then(res =>{
-    adoptCount.value=res.total
-  })
+//领养模块完成后取消注释
+  // //获取领养申请数量
+  // await listAdopt().then(res =>{
+  //   adoptCount.value=res.total
+  // })
+
   //初始化图表
   initChart()
+
 }
 
 
@@ -104,11 +108,11 @@ const initChart = () => {
     ]
   }
   chart.setOption(option);
-
+  window.addEventListener('resize', () => chart.resize())
 }
 
 onMounted(() => {
-  getdata()
+  getData()
 })
 </script>
 
