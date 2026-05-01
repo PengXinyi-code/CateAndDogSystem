@@ -21,7 +21,7 @@ public class ResourcesConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         /** 本地文件上传路径 */
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:D:/Desktop/CateAndDogSystem/springboot/src/main/resources/static/uploads/");
+                .addResourceLocations("file:C:/Users/詹雨莹/Desktop/CateAndDogSystem/springboot/src/main/resources/static/uploads/");
 
         registry.addResourceHandler("/profile" + "/**")
                 .addResourceLocations("file:" + fastConfig.getProfile() + "/");

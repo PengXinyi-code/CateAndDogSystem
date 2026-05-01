@@ -11,7 +11,7 @@ app = FastAPI()
 # ======================
 # 模型加载
 # ======================
-model = models.resnet50(pretrained=True)
+model = models.resnet50(weights=None)
 model = torch.nn.Sequential(*list(model.children())[:-1])
 model.eval()
 
