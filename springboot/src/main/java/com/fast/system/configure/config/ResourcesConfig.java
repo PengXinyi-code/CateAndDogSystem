@@ -1,6 +1,7 @@
 package com.fast.system.configure.config;
 
 import com.fast.system.general.config.fastConfig;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -17,11 +18,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class ResourcesConfig implements WebMvcConfigurer {
 
+    @Value("${file.upload-path}")
+    private String uploadPath;
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         /** 本地文件上传路径 */
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:C:/Users/詹雨莹/Desktop/CateAndDogSystem/springboot/src/main/resources/static/uploads/");
+                .addResourceLocations("file:" + uploadPath + "/");
 
         registry.addResourceHandler("/profile" + "/**")
                 .addResourceLocations("file:" + fastConfig.getProfile() + "/");

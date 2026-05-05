@@ -9,6 +9,7 @@ import com.fast.succour.service.FileUploadService;
 import com.fast.succour.service.PythonService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +23,12 @@ import java.util.UUID;
 
 @Service
 public class AnimalServiceImp implements AnimalService {
+    @Value("${file.image-path}")
+    private String imagePath;
+
+    @Value("${file.static-path}")
+    private String staticPath;
+
     @Resource
     private AnimalMapper animalMapper;
 
@@ -58,7 +65,7 @@ public class AnimalServiceImp implements AnimalService {
             String fileName = System.currentTimeMillis() + "_" + UUID.randomUUID() + suffix;
 
             // 固定磁盘目录
-            String uploadDir = "file:C:/Users/詹雨莹/Desktop/Cat-and-Dog-System/springboot/src/main/resources/static/uploads/images/";
+            String uploadDir = "file:" + imagePath;
             File dest = new File(uploadDir + fileName);
             dest.getParentFile().mkdirs();
 
@@ -76,7 +83,7 @@ public class AnimalServiceImp implements AnimalService {
             savedImageUrl = imageUrl;
 
             // 从已保存的文件中提取特征
-            String fullPath = "E:/Cat-and-Dog-System/springboot/src/main/resources/static" + imageUrl;
+            String fullPath = staticPath + imageUrl;
             File existingFile = new File(fullPath);
 
             System.out.println("尝试从路径提取特征: " + fullPath);
@@ -159,8 +166,7 @@ public class AnimalServiceImp implements AnimalService {
                     
                     // 去掉 /uploads/images/ 前缀，获取文件名
                     String fileName = imageUrl.replace("/uploads/images/", "");
-                    String uploadDir = "D:/Desktop/CateAndDogSystem/springboot/src/main/resources/static/uploads/images";
-                    String fullPath = uploadDir + fileName;
+                    String fullPath = imagePath + "/" + fileName;
                     File fileToDelete = new File(fullPath);
                     
                     System.out.println("尝试删除文件: " + fullPath);

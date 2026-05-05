@@ -17,8 +17,9 @@ DB_CONFIG = {
 }
 
 
-# 2. 图片根目录
-IMAGE_BASE_PATH = "../springboot/src/main/resources/static"
+# 2. 图片根目录（使用动态绝对路径）
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+IMAGE_BASE_PATH = os.path.join(PROJECT_ROOT, "../springboot/src/main/resources/static")
 
 # 3. 加载 ResNet50 模型
 model = models.resnet50(pretrained=True)
