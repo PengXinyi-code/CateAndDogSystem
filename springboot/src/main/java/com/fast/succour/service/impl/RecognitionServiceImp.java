@@ -7,6 +7,7 @@ import com.fast.succour.mapper.AnimalMapper;
 import com.fast.succour.service.PythonService;
 import com.fast.succour.service.RecognitionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,6 +16,9 @@ import java.util.List;
 
 @Service
 public class RecognitionServiceImp implements RecognitionService {
+
+    @Value("${file.temp-path}")
+    private String tempPath;
 
     // 1. 依赖注入应该放在类级别
     @Autowired
@@ -42,7 +46,7 @@ public class RecognitionServiceImp implements RecognitionService {
 
         String fileName = "tmp_" + System.currentTimeMillis() + suffix;
 
-        String tempDir = "E:/animal-images/temp/"; // 单独临时目录（推荐）
+        String tempDir = tempPath + "/";
         File dest = new File(tempDir + fileName);
         dest.getParentFile().mkdirs();
 
@@ -81,7 +85,7 @@ public class RecognitionServiceImp implements RecognitionService {
         }
 
         // 阈值判断（关键）
-        if (maxSim > 0.85) {
+        if (maxSim > 0.90) {
             return bestAnimal;
         }
 
