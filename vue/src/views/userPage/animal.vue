@@ -42,6 +42,7 @@
           v-for="animal in animalList"
           :key="animal.id"
           class="animal-card"
+          @click="gotoDetail(animal.id)"
       >
         <div class="card-image">
           <el-image
@@ -108,6 +109,7 @@
 import { ref, onMounted } from 'vue'
 import { listAnimal } from '@/api/sccour/animals'
 import { Picture, Location, Clock } from '@element-plus/icons-vue'
+import {useRouter} from 'vue-router'
 
 const baseUrl = import.meta.env.VITE_APP_BASE_API
 
@@ -136,6 +138,12 @@ const getImageUrl = (imageUrl) => {
 const formatDate = (dateStr) => {
   if (!dateStr) return '-'
   return dateStr.split(' ')[0]
+}
+
+const router = useRouter()
+
+const gotoDetail=(id) =>{
+  router.push('/user/animalDetail/'+ id)
 }
 
 const getList = () => {
