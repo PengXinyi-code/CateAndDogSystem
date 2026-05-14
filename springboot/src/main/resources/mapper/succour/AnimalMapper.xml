@@ -3,10 +3,12 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fast.succour.mapper.AnimalMapper">
-    <resultMap id="AnimalResult" type="Animal">
+
+    <resultMap id="AnimalResult" type="com.fast.succour.domain.Animal">
         <id     property="id"             column="id"/>
         <result property="name"           column="name"/>
         <result property="species"        column="species"/>
+        <result property="description"    column="description"/>
         <result property="firstFoundTime" column="first_found_time"/>
         <result property="location"       column="location"/>
         <result property="isAdopted"      column="is_adopted"/>
@@ -14,18 +16,21 @@
         <result property="imageUrl"       column="image_url"/>
     </resultMap>
 
-    <!--通过动物ID查询动物-->
+    <!-- 通过动物ID查询动物 -->
     <select id="findById" parameterType="Long" resultMap="AnimalResult">
-        SELECT a.id, a.name, a.species, a.first_found_time, a.location, a.is_adopted, a.status, ai.image_url
-        FROM animals a LEFT JOIN animal_images ai ON a.id = ai.animal_id
+        SELECT a.id, a.name, a.species, a.description, a.first_found_time, a.location, a.is_adopted, a.status, ai.image_url
+        FROM animals a
+        LEFT JOIN animal_images ai ON a.id = ai.animal_id
         WHERE a.id = #{id}
     </select>
 
+    <!-- 查询动物列表 -->
     <select id="selectAnimalList" parameterType="Animal" resultMap="AnimalResult">
         SELECT
         a.id,
         a.name,
         a.species,
+        a.description,
         a.first_found_time,
         a.location,
         a.is_adopted,
@@ -50,12 +55,13 @@
         ORDER BY a.id ASC
     </select>
 
-    <!--插入动物信息-->
+    <!-- 插入动物信息 -->
     <insert id="insertAnimal" parameterType="Animal" useGeneratedKeys="true" keyProperty="id">
         insert into animals
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="name != null and name != ''">name,</if>
             <if test="species != null and species != ''">species,</if>
+            <if test="description != null and description != ''">description,</if>
             <if test="firstFoundTime != null">first_found_time,</if>
             <if test="location != null and location != ''">location,</if>
             <if test="isAdopted != null">is_adopted,</if>
@@ -64,6 +70,7 @@
         <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
             <if test="name != null and name != ''">#{name},</if>
             <if test="species != null and species != ''">#{species},</if>
+            <if test="description != null and description != ''">#{description},</if>
             <if test="firstFoundTime != null">#{firstFoundTime},</if>
             <if test="location != null and location != ''">#{location},</if>
             <if test="isAdopted != null">#{isAdopted},</if>
@@ -71,12 +78,13 @@
         </trim>
     </insert>
 
-    <!--更新动物信息-->
+    <!-- 更新动物信息 -->
     <update id="updateAnimal" parameterType="Animal">
         update animals
         <trim prefix="SET" suffixOverrides=",">
             <if test="name != null and name != ''">name = #{name},</if>
             <if test="species != null and species != ''">species = #{species},</if>
+            <if test="description != null and description != ''">description = #{description},</if>
             <if test="firstFoundTime != null">first_found_time = #{firstFoundTime},</if>
             <if test="location != null and location != ''">location = #{location},</if>
             <if test="isAdopted != null">is_adopted = #{isAdopted},</if>
@@ -85,11 +93,12 @@
         WHERE id = #{id}
     </update>
 
-    <!--删除动物信息-->
+    <!-- 删除动物信息 -->
     <delete id="deleteAnimalByAnimalIds" parameterType="String">
         DELETE FROM animals WHERE id IN
         <foreach collection="array" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>
+
 </mapper>

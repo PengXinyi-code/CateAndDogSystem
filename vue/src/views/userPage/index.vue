@@ -22,6 +22,12 @@
                                 </el-icon>
                                 动物档案
                             </el-menu-item>
+                          <el-menu-item index="/user/record">
+                            <el-icon>
+                              <Tickets/>
+                            </el-icon>
+                            我的申请
+                          </el-menu-item>
                             <el-menu-item index="/user/self">
                                 <el-icon>
                                     <UserFilled/>
@@ -72,7 +78,7 @@ import {useRoute, useRouter} from 'vue-router'
 import {getUser} from "@/api/system/user"
 import useUserStore from "@/store/modules/user.js";
 import {ElMessageBox} from "element-plus";
-import {Guide, HomeFilled, UserFilled} from "@element-plus/icons-vue";
+import {Guide, HomeFilled,Tickets, UserFilled} from "@element-plus/icons-vue";
 
 const userStore = useUserStore()
 const route = useRoute()

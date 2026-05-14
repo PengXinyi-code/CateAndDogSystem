@@ -53,6 +53,16 @@ export const constantRoutes = [
         meta: { title: '动物档案', icon: 'user' }
       },
       {
+        path: 'animalDetail/:id',
+        component: () => import('@/views/userPage/animalDetail'),
+        hidden: true
+      },
+      {
+        path: 'record',
+        component: () => import('@/views/userPage/record'),
+        hidden: true
+      },
+      {
         path: 'self',
         component: () => import('@/views/system/user/profile/index'),
         meta: { title: '个人中心', icon: 'user' }
@@ -69,6 +79,19 @@ export const constantRoutes = [
         component: () => import('@/views/system/user/profile/index'),
         name: 'Profile',
         meta: { title: '个人中心', icon: 'user' }
+      }
+    ]
+  },
+  // ========== 领养记录路由 ==========
+  {
+    path: '/adoption-record',
+    component: Layout,
+    children: [
+      {
+        path: 'list',
+        component: () => import('@/views/succour/record/index.vue'),
+        name: 'AdoptionRecord',
+        meta: { title: '领养记录', icon: 'document' }
       }
     ]
   }

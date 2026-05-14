@@ -11,6 +11,7 @@ public class Animal {
     private Long id;
     private String name;
     private String species;
+    private String description;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")   // 反序列化 JSON 入参用
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") // 表单参数绑定用

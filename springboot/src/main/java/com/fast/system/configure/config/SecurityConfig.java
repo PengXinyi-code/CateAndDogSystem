@@ -82,15 +82,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests((requests) -> {
                     // 对于登录login 注册register 验证码captchaImage 允许匿名访问
                     requests.requestMatchers("/login", "/register").permitAll()
-                            // <--- 新增这一行：放行 /uploads/** 开头的路径，让图片可以公开访问
                             .requestMatchers("/uploads/**").permitAll()
                             .requestMatchers("/profile/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/", "/*.html", "/**.html", "/**.css", "/**.js", "/**.jpg", "/**.png", "/**.gif", "/**.jpeg").permitAll()
-                            // <--- 重点：加上这一行，放行所有 /api/ 开头的接口
                             .requestMatchers("/api/**").permitAll()
-                            // 静态资源，可匿名访问
                             .requestMatchers(HttpMethod.GET, "/", "/*.html", "/**.html", "/**.css", "/**.js", "/profile/**").permitAll()
                             .requestMatchers("/druid/**").permitAll()
+                            // ✅ 添加这一行：放行领养记录接口
+                            .requestMatchers("/succour/adopt/record/**").permitAll()
                             // 除上面外的所有请求全部需要鉴权认证
                             .anyRequest().authenticated();
                 })
