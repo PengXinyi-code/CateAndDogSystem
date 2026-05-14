@@ -41,7 +41,7 @@ CREATE TABLE `adopt` (
   KEY `idx_animal_id` (`animal_id`),
   KEY `idx_user_id` (`user_id`),
   KEY `idx_status` (`status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='领养申请表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='领养申请表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -75,7 +75,7 @@ CREATE TABLE `adoption_record` (
   `user_name` varchar(50) DEFAULT NULL COMMENT '领养人姓名',
   `address` varchar(255) DEFAULT NULL COMMENT '居住地址',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -98,12 +98,12 @@ DROP TABLE IF EXISTS `animal_images`;
 CREATE TABLE `animal_images` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '图片ID',
   `animal_id` bigint NOT NULL COMMENT '所属动物ID',
-  `image_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '图片路径',
+  `image_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '图片路径',
   `feature_vector` blob NOT NULL COMMENT '图像特征向量（float32序列化）',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `idx_animal_id` (`animal_id`) USING BTREE,
   CONSTRAINT `fk_animal` FOREIGN KEY (`animal_id`) REFERENCES `animals` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=135 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='动物图像及特征表';
+) ENGINE=InnoDB AUTO_INCREMENT=135 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='动物图像及特征表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3257,16 +3257,16 @@ DROP TABLE IF EXISTS `animals`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `animals` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '动物ID',
-  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '名称（用户自定义）',
-  `species` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '种类（猫/狗/其他）',
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '名称（用户自定义）',
+  `species` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '种类（猫/狗/其他）',
   `first_found_time` datetime NOT NULL COMMENT '初次发现时间',
-  `location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '发现位置（地址或经纬度）',
+  `location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '发现位置（地址或经纬度）',
   `is_adopted` tinyint(1) DEFAULT '0' COMMENT '是否已被领养',
-  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'pending' COMMENT '审核状态（pending/approved/rejected）',
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT 'pending' COMMENT '审核状态（pending/approved/rejected）',
   `description` text COMMENT '???????',
   `image_url` varchar(255) DEFAULT NULL COMMENT '图片地址',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=148 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='动物档案表';
+) ENGINE=InnoDB AUTO_INCREMENT=148 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='动物档案表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
