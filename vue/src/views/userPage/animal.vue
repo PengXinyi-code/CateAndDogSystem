@@ -159,6 +159,8 @@ const getList = () => {
   } else {
     delete params.species
   }
+  // 确保始终只显示审核通过的动物
+  params.status = 'approved'
   if (adoptFilter.value === '待领养') {
     params.isAdopted = false
   } else if (adoptFilter.value === '已领养') {

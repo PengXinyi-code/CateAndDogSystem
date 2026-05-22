@@ -49,7 +49,8 @@ uvicorn main:app --port 8000
 
 ### 导入 SQL 文件
 
-在 MySQL 中导入 `animal-system.sql` 即可建立所有需要的数据库表。
+在 MySQL 中导入 `animal-succour.sql` 即可建立所有需要的数据库表
+注意数据库名字需为animal-succour，不然需要修改密码，且默认是root，密码默认是123456，否则需要修改[application-druid.yml](springboot/src/main/resources/application-druid.yml)配置。
 
 > **说明**：该文件已包含所有表结构（动物业务表 + 系统管理表）。
 

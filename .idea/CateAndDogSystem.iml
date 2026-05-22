@@ -4,6 +4,7 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/photo_recognize/venv/Lib/site-packages" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/photo_recognize/venv/Lib/site-packages/numpy" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/photo_recognize/venv" />
     </content>
     <orderEntry type="inheritedJdk" />

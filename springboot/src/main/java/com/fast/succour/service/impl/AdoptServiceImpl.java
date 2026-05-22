@@ -67,6 +67,12 @@ public class AdoptServiceImpl implements IAdoptService {
             Adopt fullAdopt = adoptMapper.selectAdoptByAdoptId(adopt.getAdoptId());
 
             if (fullAdopt != null) {
+                // 更新动物的领养状态
+                Animal updateAnimal = new Animal();
+                updateAnimal.setId(Long.valueOf(fullAdopt.getAnimalId()));
+                updateAnimal.setIsAdopted(true);
+                animalService.updateAnimal(updateAnimal);
+
                 AdoptionRecord record = new AdoptionRecord();
                 record.setAnimalId(fullAdopt.getAnimalId());
                 record.setUserId(fullAdopt.getUserId());
@@ -112,7 +118,7 @@ public class AdoptServiceImpl implements IAdoptService {
 
         Animal animal = new Animal();
         animal.setId(Long.valueOf(adopt.getAnimalId()));
-        animal.setStatus("可领养");
+        animal.setIsAdopted(false);
         animalService.updateAnimal(animal);
 
         return adoptMapper.deleteAdoptByAdoptIds(new String[]{adoptId});
