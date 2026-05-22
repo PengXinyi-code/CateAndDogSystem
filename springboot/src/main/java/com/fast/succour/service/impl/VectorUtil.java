@@ -6,16 +6,23 @@ import java.nio.FloatBuffer;
 
 public class VectorUtil {
     public static float[] bytesToFloatArray(byte[] bytes) {
-        if (bytes == null) return null;
+        if (bytes == null || bytes.length == 0) return null;
+
+        // 确保字节数是 4 的倍数（每个 float 占 4 字节）
+        if (bytes.length % 4 != 0) {
+            System.err.println("警告：特征向量字节数 " + bytes.length + " 不是 4 的倍数，可能数据已损坏");
+            return null;
+        }
 
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
-
         buffer.order(ByteOrder.LITTLE_ENDIAN);
 
-        FloatBuffer fb = buffer.asFloatBuffer();
+        int floatCount = bytes.length / 4;
+        float[] arr = new float[floatCount];
 
-        float[] arr = new float[fb.remaining()];
-        fb.get(arr);
+        for (int i = 0; i < floatCount; i++) {
+            arr[i] = buffer.getFloat();
+        }
 
         return arr;
     }

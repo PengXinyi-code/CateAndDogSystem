@@ -80,12 +80,12 @@
 
       <div class="animals-grid">
         <div v-for="animal in animalList"
-             :key="animal.animalId"
+             :key="animal.id"
              class="pet-card"
-             @click="gotoDetail(animal.animalId)"
+             @click="gotoDetail(animal.id)"
         >
           <div class="pet-img-wrapper">
-            <img :src="baseUrl + animal.image" alt="">
+            <img :src="baseUrl + animal.imageUrl" alt="">
             <div class="pet-status-badge">
               {{ animal.status }}
             </div>
