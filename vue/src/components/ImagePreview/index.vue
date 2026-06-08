@@ -15,6 +15,7 @@
 </template>
 
 <script setup>
+import { resolveImageUrl } from '@/utils/image'
 
 const props = defineProps({
   src: {
@@ -50,22 +51,6 @@ const realSrcList = computed(() => {
   })
   return srcList
 })
-
-function resolveImageUrl(url) {
-  if (!url || /^(data:|blob:)/.test(url)) return url
-  if (/^https?:/.test(url)) {
-    try {
-      const parsedUrl = new URL(url)
-      if (parsedUrl.pathname.startsWith('/profile') || parsedUrl.pathname.startsWith('/uploads')) {
-        return import.meta.env.VITE_APP_BASE_API + parsedUrl.pathname
-      }
-    } catch (e) {
-      return url
-    }
-    return url
-  }
-  return import.meta.env.VITE_APP_BASE_API + url
-}
 
 const realWidth = computed(() =>
   typeof props.width == "string" ? props.width : `${props.width}px`

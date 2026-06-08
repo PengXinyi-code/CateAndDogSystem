@@ -48,6 +48,7 @@
 
 <script setup>
 import { getToken } from "@/utils/auth"
+import { resolveImageUrl } from "@/utils/image"
 
 const props = defineProps({
   modelValue: [String, Object, Array],
@@ -97,19 +98,7 @@ const showTip = computed(
 )
 
 function toPreviewUrl(url) {
-  if (!url || /^(data:|blob:)/.test(url)) return url
-  if (/^https?:/.test(url)) {
-    try {
-      const parsedUrl = new URL(url)
-      if (parsedUrl.pathname.startsWith('/profile') || parsedUrl.pathname.startsWith('/uploads')) {
-        return baseUrl + parsedUrl.pathname
-      }
-    } catch (e) {
-      return url
-    }
-    return url
-  }
-  return baseUrl + url
+  return resolveImageUrl(url, baseUrl)
 }
 
 watch(() => props.modelValue, val => {
@@ -120,7 +109,7 @@ watch(() => props.modelValue, val => {
     fileList.value = list.map(item => {
       if (typeof item === "string") {
         if (item.indexOf(baseUrl) === -1 && !/^(https?:|mailto:|tel:)/.test(item)) {
-          item = { name: baseUrl + item, url: baseUrl + item }
+          item = { name: item, url: toPreviewUrl(item) }
         } else {
           item = { name: item, url: item }
         }

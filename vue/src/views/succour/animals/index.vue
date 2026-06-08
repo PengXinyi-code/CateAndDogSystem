@@ -210,6 +210,7 @@ import { useRoute } from "vue-router";
 import { Plus } from "@element-plus/icons-vue";
 import { listAnimal, getAnimal, delAnimal, addAnimal, updateAnimal } from "@/api/sccour/animals.js";
 import { ElMessage, ElMessageBox } from "element-plus";
+import { resolveImageUrl } from "@/utils/image";
 
 const route = useRoute();
 
@@ -248,10 +249,7 @@ const baseUrl = import.meta.env.VITE_APP_BASE_API;
 
 const handleImageSrc = (src) => {
   if (!src) return '';
-  if (src.startsWith('http')) return src;
-  if (src.startsWith('/uploads')) {
-    return baseUrl + src;
-  }
+  if (/^(https?:|data:|blob:)/.test(src) || src.startsWith('/')) return resolveImageUrl(src, baseUrl);
   return baseUrl + '/uploads/images/' + src;
 };
 

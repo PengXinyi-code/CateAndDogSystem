@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -44,6 +45,11 @@ public class AnimalServiceImp implements AnimalService {
     @Override
     public List<Animal> selectAnimalList(Animal animal) {
         return animalMapper.selectAnimalList(animal);
+    }
+
+    @Override
+    public Map<String, Object> selectAnimalStats() {
+        return animalMapper.selectAnimalStats();
     }
 
     @Override

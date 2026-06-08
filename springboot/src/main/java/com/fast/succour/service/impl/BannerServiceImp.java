@@ -3,7 +3,7 @@ package com.fast.succour.service.impl;
 import com.fast.succour.domain.Banner;
 import com.fast.succour.mapper.BannerMapper;
 import com.fast.succour.service.BannerService;
-import com.fast.succour.service.BannerService;
+import com.fast.system.general.utils.file.LocalUploadFileUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -63,7 +63,15 @@ public class BannerServiceImp implements BannerService {
      */
     @Override
     public int updateBanner(Banner banner) {
-        return bannerMapper.updateBanner(banner);
+        Banner oldBanner = bannerMapper.selectBannerByBannerId(banner.getBannerId());
+        int rows = bannerMapper.updateBanner(banner);
+        if (rows > 0 && oldBanner != null && oldBanner.getImage() != null
+                && banner.getImage() != null
+                && !oldBanner.getImage().equals(banner.getImage())
+                && bannerMapper.countBannerByImage(oldBanner.getImage()) == 0) {
+            LocalUploadFileUtils.deleteProfileFile(oldBanner.getImage());
+        }
+        return rows;
     }
 
     /**
@@ -74,6 +82,15 @@ public class BannerServiceImp implements BannerService {
      */
     @Override
     public int deleteBannerByBannerIds(String[] bannerIds) {
-        return bannerMapper.deleteBannerByBannerIds(bannerIds);
+        List<Banner> banners = bannerMapper.selectBannerByBannerIds(bannerIds);
+        int rows = bannerMapper.deleteBannerByBannerIds(bannerIds);
+        if (rows > 0) {
+            banners.stream()
+                    .map(Banner::getImage)
+                    .filter(image -> image != null && bannerMapper.countBannerByImage(image) == 0)
+                    .distinct()
+                    .forEach(LocalUploadFileUtils::deleteProfileFile);
+        }
+        return rows;
     }
 }

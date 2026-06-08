@@ -20,6 +20,18 @@
         where banner_id = #{bannerId}
     </select>
 
+    <select id="selectBannerByBannerIds" parameterType="String" resultMap="BannerResult">
+        select banner_id, image, sort from banner
+        where banner_id in
+        <foreach item="bannerId" collection="bannerIds" open="(" separator="," close=")">
+            #{bannerId}
+        </foreach>
+    </select>
+
+    <select id="countBannerByImage" parameterType="String" resultType="int">
+        select count(1) from banner where image = #{image}
+    </select>
+
     <insert id="insertBanner" parameterType="Banner">
         insert into banner
         <trim prefix="(" suffix=")" suffixOverrides=",">

@@ -1,9 +1,12 @@
 # IntelliJ IDEA
 *.iml
+.idea/
 
-# VS Code local files (keep shared settings)
-.vscode/*
-!.vscode/settings.json
+# VS Code local files
+.vscode/
+
+# Accidental top-level duplicate upload directory
+/src/
 
 # Java / Maven
 target/
@@ -40,7 +43,12 @@ Thumbs.db
 Desktop.ini
 
 # Temporary files
-temp/
+temp/*
+!temp/.gitkeep
 *.tmp
 *.swp
 *~
+
+# Runtime storage that should be kept in the repo workspace
+!file/
+!springboot/src/main/resources/static/uploads/images/

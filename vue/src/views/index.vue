@@ -1,7 +1,7 @@
 <template xmlns:el-col="http://www.w3.org/1999/html">
   <div style="padding: 20px">
     <el-row :gutter="20">
-      <el-col :span="8">
+      <el-col :span="6">
         <div class="card">
           <div>
             <div class="title">动物总数</div>
@@ -13,7 +13,19 @@
         </div>
       </el-col>
 
-      <el-col :span="8">
+      <el-col :span="6">
+        <div class="card">
+          <div>
+            <div class="title">审核通过档案数</div>
+            <div class="value">{{approvedCount}}</div>
+          </div>
+          <div class="icon approved-icon">
+            <el-icon><CircleCheck/></el-icon>
+          </div>
+        </div>
+      </el-col>
+
+      <el-col :span="6">
         <div class="card">
           <div>
             <div class="title">待审核档案数</div>
@@ -25,7 +37,7 @@
         </div>
       </el-col>
 
-      <el-col :span="8">
+      <el-col :span="6">
         <div class="card">
           <div>
             <div class="title">领养申请数</div>
@@ -66,13 +78,14 @@
 
 <script setup>
 import { ref, onMounted, onActivated } from 'vue'
-import { Medal, User, Clock } from "@element-plus/icons-vue";
-import { listAnimal } from "@/api/sccour/animals.js";
+import { Medal, User, Clock, CircleCheck } from "@element-plus/icons-vue";
+import { listAnimal, getAnimalStats } from "@/api/sccour/animals.js";
 // 新增：导入领养申请接口（请确保接口路径与你的后端匹配）
 import { listAdopt } from "@/api/sccour/adopt.js";
 import * as echarts from "echarts";
 
 const animalCount = ref(0);
+const approvedCount = ref(0);
 const pendingCount = ref(0);
 // 新增：领养申请数初始值（仅新增这一行，不改动其他变量）
 const adoptApplyCount = ref(0);
@@ -88,9 +101,15 @@ let chart = null;
 let pieChart = null;
 
 const getData = async () => {
-  // 原有：获取动物列表数据
-  const res = await listAnimal({ pageNum: 1, pageSize: 1000 });
-  animalCount.value = res.total;
+  const [res, statsRes] = await Promise.all([
+    listAnimal({ pageNum: 1, pageSize: 1000 }),
+    getAnimalStats()
+  ]);
+  const stats = statsRes.data || {};
+  const statValue = (name) => Number(stats[name] ?? stats[name.toUpperCase()] ?? 0);
+  animalCount.value = statValue('total');
+  approvedCount.value = statValue('approved');
+  pendingCount.value = statValue('pending');
   countAll(res.rows);
 
   // 新增：调用你提供的listAdopt接口，获取领养申请总数（关键修改）
@@ -114,14 +133,8 @@ const countAll = (rows) => {
   adoptedDog.value = 0;
   unAdoptedCat.value = 0;
   unAdoptedDog.value = 0;
-  pendingCount.value = 0;
 
   rows.forEach(item => {
-    // 统计待审核档案数
-    if (item.status === "pending") {
-      pendingCount.value++;
-    }
-
     // 统计猫狗领养状态
     const isAdopt = item.isAdopted === true;
     if (item.species === "猫") {
@@ -223,6 +236,7 @@ onActivated(() => {
   font-size: 30px;
 }
 .animal-icon{ background: #f8f6f6; color: #409eff; }
+.approved-icon{ background: #f0f9eb; color: #67c23a; }
 .pending-icon{ background: #fff7e6; color: #faad14; }
 .adopt-icon{ background: #f8f6f6; color: #e12759; }
 .chart-card{

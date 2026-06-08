@@ -6,6 +6,7 @@ import com.fast.system.general.core.domain.AjaxResult;
 import com.fast.system.domain.SysUser;
 import com.fast.system.general.core.domain.model.LoginUser;
 import com.fast.system.general.utils.file.FileUploadUtils;
+import com.fast.system.general.utils.file.LocalUploadFileUtils;
 import com.fast.system.general.utils.file.MimeTypeUtils;
 import com.fast.system.service.ISysUserService;
 import jakarta.annotation.Resource;
@@ -93,14 +94,19 @@ public class SysProfileController extends BaseController {
     public AjaxResult avatar(@RequestParam("avatarfile") MultipartFile file) throws Exception {
         if (!file.isEmpty()) {
             LoginUser loginUser = getLoginUser();
+            String oldAvatar = loginUser.getUser().getAvatar();
             String avatar = FileUploadUtils.upload(fastConfig.getAvatarPath(), file, MimeTypeUtils.IMAGE_EXTENSION);
             if (userService.updateUserAvatar(loginUser.getUsername(), avatar)) {
+                if (oldAvatar != null && !oldAvatar.equals(avatar)) {
+                    LocalUploadFileUtils.deleteProfileFile(oldAvatar);
+                }
                 AjaxResult ajax = AjaxResult.success();
                 ajax.put("imgUrl", avatar);
                 // 更新缓存用户头像
                 loginUser.getUser().setAvatar(avatar);
                 return ajax;
             }
+            LocalUploadFileUtils.deleteProfileFile(avatar);
         }
         return error("上传图片异常，请联系管理员");
     }

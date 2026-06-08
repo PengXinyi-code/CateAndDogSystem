@@ -85,7 +85,7 @@
              @click="gotoDetail(animal.id)"
         >
           <div class="pet-img-wrapper">
-            <img :src="baseUrl + animal.imageUrl" alt="">
+            <img :src="resolveImageUrl(animal.imageUrl)" alt="">
             <div class="pet-status-badge">
               {{ animal.status }}
             </div>
@@ -132,7 +132,7 @@
           >
             <el-image
                 v-if="addForm.imageUrl"
-                :src="baseUrl + addForm.imageUrl"
+                :src="resolveImageUrl(addForm.imageUrl)"
                 style="width: 120px; height: 120px; border-radius: 8px; object-fit: cover;"
                 fit="cover"
             />
@@ -193,25 +193,9 @@ import {useRouter} from "vue-router";
 import {Female, House, Male, UploadFilled, CircleCheckFilled, WarningFilled, Plus} from "@element-plus/icons-vue";
 import {ElMessage} from "element-plus";
 import request from "@/utils/request";
+import {resolveImageUrl} from "@/utils/image";
 
 const baseUrl = import.meta.env.VITE_APP_BASE_API
-
-const resolveImageUrl = (url) => {
-  if (!url) return ''
-  if (/^(data:|blob:)/.test(url)) return url
-  if (/^https?:/.test(url)) {
-    try {
-      const parsedUrl = new URL(url)
-      if (parsedUrl.pathname.startsWith('/profile') || parsedUrl.pathname.startsWith('/uploads')) {
-        return baseUrl + parsedUrl.pathname
-      }
-    } catch (e) {
-      return url
-    }
-    return url
-  }
-  return baseUrl + url
-}
 
 const toSection = () => {
   const el = document.getElementById(`adopt-section`)

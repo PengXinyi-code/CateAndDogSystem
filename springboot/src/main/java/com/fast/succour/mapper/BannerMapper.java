@@ -2,6 +2,7 @@ package com.fast.succour.mapper;
 
 import com.fast.succour.domain.Banner;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -23,6 +24,10 @@ public interface BannerMapper
      * @return 轮播图集合
      */
     public List<Banner> selectBannerList(Banner banner);
+
+    public List<Banner> selectBannerByBannerIds(@Param("bannerIds") String[] bannerIds);
+
+    public int countBannerByImage(@Param("image") String image);
 
     /**
      * 新增轮播图
