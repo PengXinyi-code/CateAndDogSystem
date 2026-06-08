@@ -96,6 +96,22 @@ const showTip = computed(
   () => props.isShowTip && (props.fileType || props.fileSize)
 )
 
+function toPreviewUrl(url) {
+  if (!url || /^(data:|blob:)/.test(url)) return url
+  if (/^https?:/.test(url)) {
+    try {
+      const parsedUrl = new URL(url)
+      if (parsedUrl.pathname.startsWith('/profile') || parsedUrl.pathname.startsWith('/uploads')) {
+        return baseUrl + parsedUrl.pathname
+      }
+    } catch (e) {
+      return url
+    }
+    return url
+  }
+  return baseUrl + url
+}
+
 watch(() => props.modelValue, val => {
   if (val) {
     // 首先将值转为数组
@@ -160,7 +176,8 @@ function handleExceed() {
 // 上传成功回调
 function handleUploadSuccess(res, file) {
   if (res.code === 200) {
-    uploadList.value.push({ name: res.url, url: res.url })
+    const imageUrl = res.fileName || res.url
+    uploadList.value.push({ name: imageUrl, url: toPreviewUrl(imageUrl) })
     uploadedSuccessfully()
   } else {
     number.value--
@@ -210,7 +227,16 @@ function listToString(list, separator) {
   separator = separator || ","
   for (let i in list) {
     if (undefined !== list[i].url && list[i].url.indexOf("blob:") !== 0) {
-      strs += list[i].url.replace(baseUrl, "") + separator
+      let url = list[i].url.replace(baseUrl, "")
+      if (/^https?:/.test(url)) {
+        try {
+          const parsedUrl = new URL(url)
+          if (parsedUrl.pathname.startsWith('/profile') || parsedUrl.pathname.startsWith('/uploads')) {
+            url = parsedUrl.pathname
+          }
+        } catch (e) {}
+      }
+      strs += url + separator
     }
   }
   return strs != "" ? strs.substr(0, strs.length - 1) : ""

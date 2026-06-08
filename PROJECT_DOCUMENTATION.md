@@ -495,14 +495,14 @@ python test-artifacts\automation\selenium_course_test.py
 10. 展示 324 个原始兼容性组合如何缩减为 16 条 Pairwise 用例；
 11. 总结已发现问题和改进方向。
 
-## 16. 后续文档计划
+## 16. 课程设计文档
 
-本文件是项目事实基线，后续课程设计材料应以此为依据继续拆分：
+本文件是项目事实基线，完整课程设计材料位于 `docs`：
 
-- `docs/deployment.md`：部署和局域网访问；
-- `docs/functional-testing.md`：功能测试方案、30 条以上用例和缺陷表；
-- `docs/automation-testing.md`：Selenium 说明和执行结果；
-- `docs/performance-testing.md`：JMeter 参数、结果和分析；
-- `docs/compatibility-testing.md`：Pairwise 方法和执行结果；
-- 最终《校园流浪动物救助领养平台软件测试报告》。
-
+- `docs/01-部署与验收测试.md`：部署、局域网访问和验收表；
+- `docs/02-功能测试.md`：32 条功能用例和缺陷报告；
+- `docs/03-自动化测试.md`：Selenium 运行说明和结果表；
+- `docs/04-性能测试.md`：JMeter 参数、结果和分析模板；
+- `docs/05-兼容性测试.md`：Pairwise 方法和 16 条组合用例；
+- `docs/06-软件测试报告.md`：最终课程设计报告正文；
+- `docs/07-答辩演示流程.md`：现场演示步骤和常见问答。

@@ -8,7 +8,7 @@
                    autoplay
       >
         <el-carousel-item v-for="banner in bannerList" :key="banner.bannerId">
-          <img :src="baseUrl + banner.image" alt="" class="carousel-image">
+          <img :src="resolveImageUrl(banner.image)" alt="" class="carousel-image">
         </el-carousel-item>
       </el-carousel>
       <div class="hero-bg-overlay"/>
@@ -195,6 +195,23 @@ import {ElMessage} from "element-plus";
 import request from "@/utils/request";
 
 const baseUrl = import.meta.env.VITE_APP_BASE_API
+
+const resolveImageUrl = (url) => {
+  if (!url) return ''
+  if (/^(data:|blob:)/.test(url)) return url
+  if (/^https?:/.test(url)) {
+    try {
+      const parsedUrl = new URL(url)
+      if (parsedUrl.pathname.startsWith('/profile') || parsedUrl.pathname.startsWith('/uploads')) {
+        return baseUrl + parsedUrl.pathname
+      }
+    } catch (e) {
+      return url
+    }
+    return url
+  }
+  return baseUrl + url
+}
 
 const toSection = () => {
   const el = document.getElementById(`adopt-section`)

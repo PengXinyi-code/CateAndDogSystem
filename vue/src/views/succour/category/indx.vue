@@ -4,12 +4,13 @@
     <el-form :model="queryParms" ref="queryRef":inline="true" label-width="70px">
       <el-form-item label="分类名称" prop="name">
         <el-input v-model="queryParms.name"
+                  data-testid="category-search-input"
                   placeholder="请输入分类名称"
                   clearable>
         </el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+        <el-button data-testid="category-search-submit" type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
@@ -18,6 +19,7 @@
     <el-row :gutter="20" style="padding: 10px 0">
       <el-col :span="1.5">
         <el-button type="primary"
+                   data-testid="category-add"
                    plain
                    icon="Plus"
                    @click="handleAdd"
@@ -67,14 +69,14 @@
     <vxe-modal :title="title" v-model="open" width="30%" show-maximize showFooter resize>
       <el-form ref="categoryRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="分类名称" prop="name">
-          <el-input v-model="form.name" placeholder="请输入分类名称" clearable/>
+          <el-input data-testid="category-name" v-model="form.name" placeholder="请输入分类名称" clearable/>
         </el-form-item>
         <el-form-item label="排序" prop="sort">
-          <el-input-number style="width: 100%;" v-model="form.sort" placeholder="请输入排序" clearable/>
+          <el-input-number data-testid="category-sort" style="width: 100%;" v-model="form.sort" placeholder="请输入排序" clearable/>
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button type="primary" @click="submitForm">确定</el-button>
+        <el-button data-testid="category-confirm" type="primary" @click="submitForm">确定</el-button>
         <el-button @click="open = false">取消</el-button>
       </template>
     </vxe-modal>

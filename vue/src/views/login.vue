@@ -11,6 +11,7 @@
                 <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="form-content">
                     <el-form-item prop="username">
                         <el-input
+                                data-testid="login-username"
                                 v-model="loginForm.username"
                                 type="text"
                                 size="large"
@@ -25,6 +26,7 @@
 
                     <el-form-item prop="password">
                         <el-input
+                                data-testid="login-password"
                                 v-model="loginForm.password"
                                 type="password"
                                 size="large"
@@ -40,6 +42,7 @@
 
                     <el-form-item style="width:100%;">
                         <el-button
+                                data-testid="login-submit"
                                 :loading="loading"
                                 size="large"
                                 type="primary"
