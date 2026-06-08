@@ -87,7 +87,7 @@
           <div class="pet-img-wrapper">
             <img :src="resolveImageUrl(animal.imageUrl)" alt="">
             <div class="pet-status-badge">
-              {{ animal.status }}
+              {{ animal.isAdopted ? '已领养' : '待领养' }}
             </div>
           </div>
           <div class="pet-info">
@@ -336,7 +336,8 @@ const resetAddForm = () => {
 const query = ref({
   pageNum: 1,
   pageSize: 4,
-  status: '可领养'
+  status: 'approved',
+  isAdopted: false
 })
 
 const beforeUpload = (file) => {
