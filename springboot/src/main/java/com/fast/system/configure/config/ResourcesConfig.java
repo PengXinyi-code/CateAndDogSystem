@@ -1,6 +1,7 @@
 package com.fast.system.configure.config;
 
 import com.fast.system.general.config.fastConfig;
+import com.fast.system.general.utils.ProjectPathUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,10 +26,10 @@ public class ResourcesConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         /** 本地文件上传路径 */
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:" + uploadPath + "/");
+                .addResourceLocations(ProjectPathUtils.resourceLocation(uploadPath));
 
         registry.addResourceHandler("/profile" + "/**")
-                .addResourceLocations("file:" + fastConfig.getProfile() + "/");
+                .addResourceLocations(ProjectPathUtils.resourceLocation(fastConfig.getProfile()));
     }
 
     /**

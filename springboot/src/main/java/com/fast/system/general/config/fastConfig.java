@@ -1,5 +1,6 @@
 package com.fast.system.general.config;
 
+import com.fast.system.general.utils.ProjectPathUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +27,7 @@ public class fastConfig {
     }
 
     public void setProfile(String profile) {
-        fastConfig.profile = profile;
+        fastConfig.profile = ProjectPathUtils.resolve(profile).toString();
     }
 
     public static String getCaptchaType() {

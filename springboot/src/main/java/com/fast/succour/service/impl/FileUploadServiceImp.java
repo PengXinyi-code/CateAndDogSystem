@@ -1,6 +1,7 @@
 package com.fast.succour.service.impl;
 
 import com.fast.succour.service.FileUploadService;
+import com.fast.system.general.utils.ProjectPathUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,7 +29,7 @@ public class FileUploadServiceImp implements FileUploadService {
 
         // 3. 保存文件
         // 直接使用从配置文件注入的 uploadPath
-        File dir = new File(uploadPath);
+        File dir = ProjectPathUtils.resolve(uploadPath).toFile();
         if (!dir.exists()) {
             dir.mkdirs();
         }
