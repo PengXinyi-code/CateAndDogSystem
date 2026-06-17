@@ -70,9 +70,10 @@ public class CommonController {
             String filePath = fastConfig.getUploadPath();
             // 上传并返回新文件名称
             String fileName = FileUploadUtils.upload(filePath, file);
-            String url = serverConfig.getUrl() + fileName;
+            String fullUrl = serverConfig.getUrl() + fileName;
             AjaxResult ajax = AjaxResult.success();
-            ajax.put("url", url);
+            ajax.put("url", fileName);
+            ajax.put("fullUrl", fullUrl);
             ajax.put("fileName", fileName);
             ajax.put("newFileName", FileUtils.getName(fileName));
             ajax.put("originalFilename", file.getOriginalFilename());

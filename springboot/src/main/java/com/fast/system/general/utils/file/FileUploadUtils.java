@@ -3,13 +3,11 @@ package com.fast.system.general.utils.file;
 import com.fast.system.general.config.fastConfig;
 import com.fast.system.general.utils.StringUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -89,9 +87,7 @@ public class FileUploadUtils
      */
     public static final String extractFilename(MultipartFile file)
     {
-        return DateFormatUtils.format(new Date(), "yyyy/MM/dd") + "/" +
-                FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + 
-                UUID.randomUUID().toString().replaceAll("-", "") + "." + 
+        return UUID.randomUUID().toString().replaceAll("-", "") + "." +
                 getExtension(file);
     }
 

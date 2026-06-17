@@ -1,5 +1,6 @@
 import { login, logout, getInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
+import { resolveImageUrl } from '@/utils/image'
 import defAva from '@/assets/images/profile.jpg'
 
 const useUserStore = defineStore(
@@ -36,9 +37,7 @@ const useUserStore = defineStore(
           getInfo().then(res => {
             const user = res.user
             let avatar = user.avatar || ""
-            if (avatar.indexOf('http://') === -1 && avatar.indexOf('https://') === -1) {
-              avatar = avatar ? import.meta.env.VITE_APP_BASE_API + avatar : defAva
-            }
+            avatar = avatar ? resolveImageUrl(avatar) : defAva
             if (res.roles && res.roles.length > 0) { // 验证返回的roles是否是一个非空数组
               this.roles = res.roles
               this.permissions = res.permissions

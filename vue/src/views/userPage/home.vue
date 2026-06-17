@@ -8,7 +8,7 @@
                    autoplay
       >
         <el-carousel-item v-for="banner in bannerList" :key="banner.bannerId">
-          <img :src="baseUrl + banner.image" alt="" class="carousel-image">
+          <img :src="resolveImageUrl(banner.image)" alt="" class="carousel-image">
         </el-carousel-item>
       </el-carousel>
       <div class="hero-bg-overlay"/>
@@ -85,9 +85,9 @@
              @click="gotoDetail(animal.id)"
         >
           <div class="pet-img-wrapper">
-            <img :src="baseUrl + animal.imageUrl" alt="">
+            <img :src="resolveImageUrl(animal.imageUrl)" alt="">
             <div class="pet-status-badge">
-              {{ animal.status }}
+              {{ animal.isAdopted ? '已领养' : '待领养' }}
             </div>
           </div>
           <div class="pet-info">
@@ -132,7 +132,7 @@
           >
             <el-image
                 v-if="addForm.imageUrl"
-                :src="baseUrl + addForm.imageUrl"
+                :src="resolveImageUrl(addForm.imageUrl)"
                 style="width: 120px; height: 120px; border-radius: 8px; object-fit: cover;"
                 fit="cover"
             />
@@ -193,6 +193,7 @@ import {useRouter} from "vue-router";
 import {Female, House, Male, UploadFilled, CircleCheckFilled, WarningFilled, Plus} from "@element-plus/icons-vue";
 import {ElMessage} from "element-plus";
 import request from "@/utils/request";
+import {resolveImageUrl} from "@/utils/image";
 
 const baseUrl = import.meta.env.VITE_APP_BASE_API
 
@@ -335,7 +336,8 @@ const resetAddForm = () => {
 const query = ref({
   pageNum: 1,
   pageSize: 4,
-  status: '可领养'
+  status: 'approved',
+  isAdopted: false
 })
 
 const beforeUpload = (file) => {

@@ -7,6 +7,7 @@ import com.fast.succour.mapper.AnimalMapper;
 import com.fast.succour.service.AnimalService;
 import com.fast.succour.service.FileUploadService;
 import com.fast.succour.service.PythonService;
+import com.fast.system.general.utils.ProjectPathUtils;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -47,6 +49,11 @@ public class AnimalServiceImp implements AnimalService {
     }
 
     @Override
+    public Map<String, Object> selectAnimalStats() {
+        return animalMapper.selectAnimalStats();
+    }
+
+    @Override
     public Animal findById(Long id) {
         return animalMapper.findById(id);
     }
@@ -65,8 +72,7 @@ public class AnimalServiceImp implements AnimalService {
             String fileName = System.currentTimeMillis() + "_" + UUID.randomUUID() + suffix;
 
             // 固定磁盘目录
-            String uploadDir = "file:" + imagePath;
-            File dest = new File(uploadDir + fileName);
+            File dest = ProjectPathUtils.resolve(imagePath).resolve(fileName).toFile();
             dest.getParentFile().mkdirs();
 
             // 保存文件
@@ -83,7 +89,7 @@ public class AnimalServiceImp implements AnimalService {
             savedImageUrl = imageUrl;
 
             // 从已保存的文件中提取特征
-            String fullPath = staticPath + imageUrl;
+            String fullPath = ProjectPathUtils.resolve(staticPath).resolve(imageUrl.replaceFirst("^/", "")).toString();
             File existingFile = new File(fullPath);
 
             System.out.println("尝试从路径提取特征: " + fullPath);
@@ -166,8 +172,8 @@ public class AnimalServiceImp implements AnimalService {
                     
                     // 去掉 /uploads/images/ 前缀，获取文件名
                     String fileName = imageUrl.replace("/uploads/images/", "");
-                    String fullPath = imagePath + "/" + fileName;
-                    File fileToDelete = new File(fullPath);
+                    File fileToDelete = ProjectPathUtils.resolve(imagePath).resolve(fileName).toFile();
+                    String fullPath = fileToDelete.getAbsolutePath();
                     
                     System.out.println("尝试删除文件: " + fullPath);
                     System.out.println("文件是否存在: " + fileToDelete.exists());

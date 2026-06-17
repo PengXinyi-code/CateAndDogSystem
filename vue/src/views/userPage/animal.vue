@@ -110,6 +110,7 @@ import { ref, onMounted } from 'vue'
 import { listAnimal } from '@/api/sccour/animals'
 import { Picture, Location, Clock } from '@element-plus/icons-vue'
 import {useRouter} from 'vue-router'
+import {resolveImageUrl} from '@/utils/image'
 
 const baseUrl = import.meta.env.VITE_APP_BASE_API
 
@@ -130,9 +131,7 @@ const queryParams = ref({
 })
 
 const getImageUrl = (imageUrl) => {
-  if (!imageUrl) return ''
-  if (imageUrl.startsWith('http')) return imageUrl
-  return baseUrl + imageUrl
+  return resolveImageUrl(imageUrl, baseUrl)
 }
 
 const formatDate = (dateStr) => {

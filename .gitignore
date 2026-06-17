@@ -1,0 +1,52 @@
+# IntelliJ IDEA
+*.iml
+.idea/
+
+# VS Code local files
+.vscode/
+
+# Accidental top-level duplicate upload directory
+/src/
+
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+*.log
+
+# Node / Vite
+node_modules/
+dist/
+*.timestamp-*.mjs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Accidental Node metadata in the Spring Boot module
+springboot/package.json
+springboot/package-lock.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+/temp/
+*.tmp
+*.swp
+*~
+
+# Generated local test artifacts
+/test-artifacts/

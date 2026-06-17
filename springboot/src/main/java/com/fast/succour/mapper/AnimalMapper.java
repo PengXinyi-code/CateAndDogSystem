@@ -6,11 +6,14 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface AnimalMapper {
 
     List<Animal> selectAnimalList(Animal animal);
+
+    Map<String, Object> selectAnimalStats();
 
     Animal findById(Long id);
 

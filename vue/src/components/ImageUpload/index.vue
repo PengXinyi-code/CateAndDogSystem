@@ -48,6 +48,7 @@
 
 <script setup>
 import { getToken } from "@/utils/auth"
+import { resolveImageUrl } from "@/utils/image"
 
 const props = defineProps({
   modelValue: [String, Object, Array],
@@ -96,6 +97,10 @@ const showTip = computed(
   () => props.isShowTip && (props.fileType || props.fileSize)
 )
 
+function toPreviewUrl(url) {
+  return resolveImageUrl(url, baseUrl)
+}
+
 watch(() => props.modelValue, val => {
   if (val) {
     // 首先将值转为数组
@@ -104,7 +109,7 @@ watch(() => props.modelValue, val => {
     fileList.value = list.map(item => {
       if (typeof item === "string") {
         if (item.indexOf(baseUrl) === -1 && !/^(https?:|mailto:|tel:)/.test(item)) {
-          item = { name: baseUrl + item, url: baseUrl + item }
+          item = { name: item, url: toPreviewUrl(item) }
         } else {
           item = { name: item, url: item }
         }
@@ -160,7 +165,8 @@ function handleExceed() {
 // 上传成功回调
 function handleUploadSuccess(res, file) {
   if (res.code === 200) {
-    uploadList.value.push({ name: res.url, url: res.url })
+    const imageUrl = res.fileName || res.url
+    uploadList.value.push({ name: imageUrl, url: toPreviewUrl(imageUrl) })
     uploadedSuccessfully()
   } else {
     number.value--
@@ -210,7 +216,16 @@ function listToString(list, separator) {
   separator = separator || ","
   for (let i in list) {
     if (undefined !== list[i].url && list[i].url.indexOf("blob:") !== 0) {
-      strs += list[i].url.replace(baseUrl, "") + separator
+      let url = list[i].url.replace(baseUrl, "")
+      if (/^https?:/.test(url)) {
+        try {
+          const parsedUrl = new URL(url)
+          if (parsedUrl.pathname.startsWith('/profile') || parsedUrl.pathname.startsWith('/uploads')) {
+            url = parsedUrl.pathname
+          }
+        } catch (e) {}
+      }
+      strs += url + separator
     }
   }
   return strs != "" ? strs.substr(0, strs.length - 1) : ""

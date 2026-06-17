@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/animal")
@@ -28,6 +29,16 @@ public class AnimalController extends BaseController {
         startPage();
         List<Animal> list = animalService.selectAnimalList(animal);
         return getDataTable(list);
+    }
+
+    /**
+     * 查询动物统计数据
+     * GET /api/animal/stats
+     */
+    @GetMapping("/stats")
+    public AjaxResult stats() {
+        Map<String, Object> stats = animalService.selectAnimalStats();
+        return success(stats);
     }
 
     /**

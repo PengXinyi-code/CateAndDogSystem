@@ -15,6 +15,7 @@
 </template>
 
 <script setup>
+import { resolveImageUrl } from '@/utils/image'
 
 const props = defineProps({
   src: {
@@ -36,7 +37,7 @@ const realSrc = computed(() => {
     return
   }
   let real_src = props.src.split(",")[0]
-  return import.meta.env.VITE_APP_BASE_API + real_src
+  return resolveImageUrl(real_src)
 })
 
 const realSrcList = computed(() => {
@@ -46,7 +47,7 @@ const realSrcList = computed(() => {
   let real_src_list = props.src.split(",")
   let srcList = []
   real_src_list.forEach(item => {
-    return srcList.push(import.meta.env.VITE_APP_BASE_API + item)
+    return srcList.push(resolveImageUrl(item))
   })
   return srcList
 })

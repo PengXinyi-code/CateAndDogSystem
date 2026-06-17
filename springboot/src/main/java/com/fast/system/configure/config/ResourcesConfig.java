@@ -1,6 +1,7 @@
 package com.fast.system.configure.config;
 
 import com.fast.system.general.config.fastConfig;
+import com.fast.system.general.utils.ProjectPathUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,10 +26,10 @@ public class ResourcesConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         /** 本地文件上传路径 */
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:" + uploadPath + "/");
+                .addResourceLocations(ProjectPathUtils.resourceLocation(uploadPath));
 
         registry.addResourceHandler("/profile" + "/**")
-                .addResourceLocations("file:" + fastConfig.getProfile() + "/");
+                .addResourceLocations(ProjectPathUtils.resourceLocation(fastConfig.getProfile()));
     }
 
     /**
@@ -37,8 +38,10 @@ public class ResourcesConfig implements WebMvcConfigurer {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        // 设置访问源地址
+        // 设置访问源地址 - 使用通配符允许所有来源（局域网部署需要）
         config.addAllowedOriginPattern("*");
+        // 允许携带认证信息
+        config.setAllowCredentials(true);
         // 设置访问源请求头
         config.addAllowedHeader("*");
         // 设置访问源请求方法

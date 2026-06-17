@@ -9,6 +9,14 @@ export function listAnimal(query) {
     })
 }
 
+// 查询动物统计数据
+export function getAnimalStats() {
+    return request({
+        url: '/api/animal/stats',
+        method: 'get'
+    })
+}
+
 // 调用时只需要传 "猫" 或 "狗"
 export function listAnimalBySpecies(species) {
     return request({

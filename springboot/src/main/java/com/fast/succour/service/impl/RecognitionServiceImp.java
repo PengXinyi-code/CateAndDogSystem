@@ -6,6 +6,7 @@ import com.fast.succour.mapper.AnimalImageMapper;
 import com.fast.succour.mapper.AnimalMapper;
 import com.fast.succour.service.PythonService;
 import com.fast.succour.service.RecognitionService;
+import com.fast.system.general.utils.ProjectPathUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -46,8 +47,7 @@ public class RecognitionServiceImp implements RecognitionService {
 
         String fileName = "tmp_" + System.currentTimeMillis() + suffix;
 
-        String tempDir = tempPath + "/";
-        File dest = new File(tempDir + fileName);
+        File dest = ProjectPathUtils.resolve(tempPath).resolve(fileName).toFile();
         dest.getParentFile().mkdirs();
 
         file.transferTo(dest);
