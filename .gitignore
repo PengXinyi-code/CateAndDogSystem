@@ -43,12 +43,10 @@ Thumbs.db
 Desktop.ini
 
 # Temporary files
-temp/*
-!temp/.gitkeep
+/temp/
 *.tmp
 *.swp
 *~
 
-# Runtime storage that should be kept in the repo workspace
-!file/
-!springboot/src/main/resources/static/uploads/images/
+# Generated local test artifacts
+/test-artifacts/
