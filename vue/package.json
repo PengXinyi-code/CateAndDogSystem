@@ -1,8 +1,8 @@
 {
-  "name": "huacai",
+  "name": "pdzs",
   "version": "1.0.0",
   "description": "后台管理端",
-  "author": "花菜",
+  "author": "pdzs",
   "license": "MIT",
   "type": "module",
   "scripts": {

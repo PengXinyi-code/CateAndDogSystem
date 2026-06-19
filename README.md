@@ -40,6 +40,42 @@ python -m uvicorn main:app --host 127.0.0.1 --port 8000
 
 如果你本地使用虚拟环境，也可以先激活 `venv` 再启动。
 
+#### 进入 Python 服务目录
+
+```powershell
+cd photo_recognize
+```
+
+#### 激活虚拟环境
+
+如果没有虚拟环境可跳过此步。
+
+Windows PowerShell 使用：
+
+```powershell
+.\venv\Scripts\activate
+```
+
+或者 CMD 使用：
+
+```cmd
+call venv\Scripts\activate.bat
+```
+
+#### 安装依赖
+
+首次运行或依赖更新时执行：
+
+```powershell
+pip install -r requirement.txt
+```
+
+#### 启动服务
+
+```powershell
+uvicorn main:app --port 8000
+```
+
 ## 数据库配置
 
 数据库配置位于 [application-druid.yml](/F:/CateAndDogSystem/springboot/src/main/resources/application-druid.yml)。
