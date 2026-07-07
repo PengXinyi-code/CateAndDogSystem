@@ -64,7 +64,9 @@ export function  addAnimal(data){
     formData.append('firstFoundTime', data.firstFoundTime)
     formData.append('isAdopted', data.isAdopted)
     formData.append('status', data.status)
-    if (data.imageUrl) {
+    if (data.file) {
+        formData.append('file', data.file)
+    } else if (data.imageUrl && !/^(data:|blob:)/.test(data.imageUrl)) {
         formData.append('imageUrl', data.imageUrl)
     }
     return request({

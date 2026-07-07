@@ -13,19 +13,19 @@
       </el-carousel>
       <div class="hero-bg-overlay"/>
       <div class="hero-glass-card">
-        <span class="badge">💗 每一个生命都值得被温柔以待</span>
+        <span class="badge">每一只校园流浪猫狗都值得被认真记录</span>
         <div class="hero-btn">
           <el-button class="custom-btn btn-filled" @click="toSection()">
             寻找你的缘分
           </el-button>
         </div>
-        <h1 class="hero-title">用爱终止流浪<br>给他们一个温暖的家</h1>
+        <h1 class="hero-title">用图像识别管理校园流浪猫狗<br>让每一次相遇都有记录</h1>
         <p class="hero-desc">
-          每一份领养, 都是爱的延续
+          每一次建档，都是后续管理与领养的起点
         </p>
 
         <div class="recognition-section">
-          <p class="recognition-title">📷 上传动物照片，智能识别</p>
+          <p class="recognition-title">上传猫狗照片，智能识别</p>
           <el-upload
               class="recognition-upload"
               drag
@@ -49,7 +49,7 @@
                     识别成功
                   </h3>
                   <p class="animal-name">名称：{{ recognitionResult.animal.name }}</p>
-                  <p>种类：{{ recognitionResult.animal.species }}</p>
+                  <p>类别：{{ recognitionResult.animal.categoryName || recognitionResult.animal.species }}</p>
                   <p>位置：{{ recognitionResult.animal.location }}</p>
                   <p>领养状态：{{ recognitionResult.animal.isAdopted ? '已领养' : '待领养' }}</p>
                   <el-button type="primary" size="small" @click.stop="resetRecognition">
@@ -59,7 +59,7 @@
                 <div v-else class="not-matched-info">
                   <h3 class="result-title">
                     <el-icon color="#e6a23c"><WarningFilled /></el-icon>
-                    未匹配到动物
+                    未匹配到档案
                   </h3>
                   <p class="result-message">{{ recognitionResult.message }}</p>
                   <el-button v-if="recognitionResult.catDog !== false" type="warning" size="small" @click.stop="goToCreateProfile">
@@ -93,7 +93,7 @@
           <div class="pet-info">
             <div class="pet-header">
               <h3>{{ animal.name }}</h3>
-              <span class="gender-icon" :class="animal.gender === '公' ? 'male' : 'female' ">
+              <span class="gender-icon" :class="animal.gender === '公' ? 'male' : 'female'">
                 <el-icon>
                   <Male v-if="animal.gender === '公'"/>
                   <Female v-else/>
@@ -113,7 +113,7 @@
                    icon="ArrowRight"
                    @click="router.push('/user/animal')"
         >
-          浏览全部萌宠
+          浏览全部猫狗
         </el-button>
       </div>
 
@@ -124,10 +124,10 @@
         <el-form-item label="动物图片" prop="imageUrl">
           <el-upload
               class="animal-uploader"
-              :action="baseUrl + '/api/common/upload'"
+              action="#"
+              :http-request="handleAddImageSelect"
               :show-file-list="false"
               :before-upload="beforeUploadImage"
-              :on-success="handleUploadSuccess"
               accept="image/*"
           >
             <el-image
@@ -234,8 +234,10 @@ const addForm = ref({
   location: null,
   isAdopted: false,
   status: 'pending',
-  imageUrl: null
+  imageUrl: null,
+  file: null
 })
+const addImageObjectUrl = ref('')
 
 const addRules = ref({
   name: [{ required: true, message: "动物名称不能为空", trigger: "blur" }],
@@ -277,36 +279,12 @@ const goToCreateProfile = () => {
   }
 
   if (recognitionResult.value && !recognitionResult.value.matched && previewImage.value) {
-    const formData = new FormData()
-    const blob = dataURLtoBlob(previewImage.value)
-    formData.append('file', blob, 'recognition_' + Date.now() + '.jpg')
-    
-    request({
-      url: '/api/common/upload',
-      method: 'post',
-      data: formData,
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    }).then(response => {
-      if (response.code === 200) {
-        addForm.value.imageUrl = response.url
-        applyDetectedCategory()
-        addDialogVisible.value = true
-      } else {
-        ElMessage.error('图片上传失败')
-        applyDetectedCategory()
-        addDialogVisible.value = true
-      }
-    }).catch(error => {
-      ElMessage.error('图片上传失败：' + (error.message || '未知错误'))
-      applyDetectedCategory()
-      addDialogVisible.value = true
-    })
-  } else {
-    applyDetectedCategory()
-    addDialogVisible.value = true
+    addForm.value.imageUrl = previewImage.value
+    addForm.value.file = dataURLtoFile(previewImage.value, 'recognition_' + Date.now() + '.jpg')
   }
+
+  applyDetectedCategory()
+  addDialogVisible.value = true
 }
 
 const applyDetectedCategory = () => {
@@ -329,6 +307,11 @@ const dataURLtoBlob = (dataurl) => {
   return new Blob([u8arr], { type: mime })
 }
 
+const dataURLtoFile = (dataurl, filename) => {
+  const blob = dataURLtoBlob(dataurl)
+  return new File([blob], filename, { type: blob.type })
+}
+
 const beforeUploadImage = (file) => {
   const isImage = file.type.startsWith('image/')
   const isLt5M = file.size / 1024 / 1024 < 5
@@ -343,13 +326,14 @@ const beforeUploadImage = (file) => {
   return true
 }
 
-const handleUploadSuccess = (res) => {
-  if (res.code === 200) {
-    addForm.value.imageUrl = res.url
-    ElMessage.success('图片上传成功')
-  } else {
-    ElMessage.error(res.msg || '图片上传失败')
+const handleAddImageSelect = (options) => {
+  if (addImageObjectUrl.value) {
+    URL.revokeObjectURL(addImageObjectUrl.value)
   }
+  addImageObjectUrl.value = URL.createObjectURL(options.file)
+  addForm.value.imageUrl = addImageObjectUrl.value
+  addForm.value.file = options.file
+  ElMessage.success('图片已选择')
 }
 
 const submitAddForm = () => {
@@ -370,6 +354,10 @@ const cancelAdd = () => {
 }
 
 const resetAddForm = () => {
+  if (addImageObjectUrl.value) {
+    URL.revokeObjectURL(addImageObjectUrl.value)
+    addImageObjectUrl.value = ''
+  }
   addForm.value = {
     name: null,
     categoryId: null,
@@ -378,7 +366,8 @@ const resetAddForm = () => {
     location: null,
     isAdopted: false,
     status: 'pending',
-    imageUrl: null
+    imageUrl: null,
+    file: null
   }
   addBreedOptions.value = []
   if (animalFormRef.value) {
@@ -428,7 +417,7 @@ const handleRecognition = (options) => {
     if (response.matched) {
       ElMessage.success('识别成功！')
     } else {
-      ElMessage.warning(response.message || '未匹配到动物')
+      ElMessage.warning(response.message || '未匹配到动物档案')
     }
   }).catch(error => {
     ElMessage.error('识别失败：' + (error.message || '未知错误'))
