@@ -19,6 +19,8 @@ public interface AnimalImageMapper {
 //    """)
     List<AnimalImage> findAll();
 
+    List<AnimalImage> findByCategoryId(String categoryId);
+
     int insertAnimalImage(AnimalImage animalImage);
 
     int updateAnimalImage(AnimalImage animalImage);

@@ -113,7 +113,7 @@ const router = useRouter()
 //     occupation: '软件工程师',
 //     reason: '家里有小朋友，希望给孩子一个陪伴成长的伙伴',
 //     petExperience: '3-5年',
-//     description: '您的申请已被救助站接受，工作人员将在3个工作日内与您联系安排后续事宜'
+//     description: '您的申请已被管理员接受，工作人员将在3个工作日内与您联系安排后续事宜'
 //   },
 //   {
 //     adoptId: 2,

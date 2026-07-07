@@ -8,6 +8,12 @@
         <id     property="id"             column="id"/>
         <result property="name"           column="name"/>
         <result property="species"        column="species"/>
+        <result property="categoryId"     column="category_id"/>
+        <result property="categoryCode"   column="category_code"/>
+        <result property="categoryName"   column="category_name"/>
+        <result property="breedId"        column="breed_id"/>
+        <result property="breedCode"      column="breed_code"/>
+        <result property="breedName"      column="breed_name"/>
         <result property="description"    column="description"/>
         <result property="firstFoundTime" column="first_found_time"/>
         <result property="location"       column="location"/>
@@ -18,9 +24,25 @@
 
     <!-- 通过动物ID查询动物 -->
     <select id="findById" parameterType="Long" resultMap="AnimalResult">
-        SELECT a.id, a.name, a.species, a.description, a.first_found_time, a.location, a.is_adopted, a.status, ai.image_url
+        SELECT a.id,
+               a.name,
+               a.species,
+               a.category_id,
+               c.code as category_code,
+               c.name as category_name,
+               a.breed_id,
+               b.code as breed_code,
+               b.name as breed_name,
+               a.description,
+               a.first_found_time,
+               a.location,
+               a.is_adopted,
+               a.status,
+               ai.image_url
         FROM animals a
         LEFT JOIN animal_images ai ON a.id = ai.animal_id
+        LEFT JOIN category c ON a.category_id = c.category_id
+        LEFT JOIN breed b ON a.breed_id = b.breed_id
         WHERE a.id = #{id}
     </select>
 
@@ -30,6 +52,12 @@
         a.id,
         a.name,
         a.species,
+        a.category_id,
+        c.code as category_code,
+        c.name as category_name,
+        a.breed_id,
+        b.code as breed_code,
+        b.name as breed_name,
         a.description,
         a.first_found_time,
         a.location,
@@ -38,9 +66,17 @@
         ai.image_url
         FROM animals a
         LEFT JOIN animal_images ai ON a.id = ai.animal_id
+        LEFT JOIN category c ON a.category_id = c.category_id
+        LEFT JOIN breed b ON a.breed_id = b.breed_id
         <where>
             <if test="name != null and name != ''">
                 AND a.name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="categoryId != null and categoryId != ''">
+                AND a.category_id = #{categoryId}
+            </if>
+            <if test="breedId != null and breedId != ''">
+                AND a.breed_id = #{breedId}
             </if>
             <if test="species != null and species != ''">
                 AND a.species = #{species}
@@ -73,6 +109,8 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="name != null and name != ''">name,</if>
             <if test="species != null and species != ''">species,</if>
+            <if test="categoryId != null and categoryId != ''">category_id,</if>
+            <if test="breedId != null and breedId != ''">breed_id,</if>
             <if test="description != null and description != ''">description,</if>
             <if test="firstFoundTime != null">first_found_time,</if>
             <if test="location != null and location != ''">location,</if>
@@ -82,6 +120,8 @@
         <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
             <if test="name != null and name != ''">#{name},</if>
             <if test="species != null and species != ''">#{species},</if>
+            <if test="categoryId != null and categoryId != ''">#{categoryId},</if>
+            <if test="breedId != null and breedId != ''">#{breedId},</if>
             <if test="description != null and description != ''">#{description},</if>
             <if test="firstFoundTime != null">#{firstFoundTime},</if>
             <if test="location != null and location != ''">#{location},</if>
@@ -96,6 +136,8 @@
         <trim prefix="SET" suffixOverrides=",">
             <if test="name != null and name != ''">name = #{name},</if>
             <if test="species != null and species != ''">species = #{species},</if>
+            <if test="categoryId != null and categoryId != ''">category_id = #{categoryId},</if>
+            <if test="breedId != null and breedId != ''">breed_id = #{breedId},</if>
             <if test="description != null and description != ''">description = #{description},</if>
             <if test="firstFoundTime != null">first_found_time = #{firstFoundTime},</if>
             <if test="location != null and location != ''">location = #{location},</if>

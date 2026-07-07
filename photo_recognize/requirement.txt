@@ -2,6 +2,7 @@ fastapi
 uvicorn
 torch
 torchvision
+ultralytics
 pillow
 numpy
 pymysql

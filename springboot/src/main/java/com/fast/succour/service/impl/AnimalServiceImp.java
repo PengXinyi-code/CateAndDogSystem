@@ -2,8 +2,12 @@ package com.fast.succour.service.impl;
 
 import com.fast.succour.domain.Animal;
 import com.fast.succour.domain.AnimalImage;
+import com.fast.succour.domain.Breed;
+import com.fast.succour.domain.Category;
 import com.fast.succour.mapper.AnimalImageMapper;
 import com.fast.succour.mapper.AnimalMapper;
+import com.fast.succour.mapper.BreedMapper;
+import com.fast.succour.mapper.CategoryMapper;
 import com.fast.succour.service.AnimalService;
 import com.fast.succour.service.FileUploadService;
 import com.fast.succour.service.PythonService;
@@ -37,6 +41,12 @@ public class AnimalServiceImp implements AnimalService {
     @Resource
     private AnimalImageMapper animalImageMapper;//注入图片
 
+    @Resource
+    private CategoryMapper categoryMapper;
+
+    @Resource
+    private BreedMapper breedMapper;
+
     @Autowired
     private FileUploadService fileUploadService; // 注入文件服务
 
@@ -61,6 +71,7 @@ public class AnimalServiceImp implements AnimalService {
     @Override
     @Transactional
     public int insertAnimal(Animal animal, MultipartFile file, String imageUrl) throws Exception {
+        normalizeCategoryAndBreed(animal, true);
 
         String savedImageUrl = null;
         float[] feature = null;
@@ -146,6 +157,7 @@ public class AnimalServiceImp implements AnimalService {
     @Override
     @Transactional
     public int updateAnimal(Animal animal) {
+        normalizeCategoryAndBreed(animal, false);
         int rows = animalMapper.updateAnimal(animal);
 
         if (rows > 0 && animal.getImageUrl() != null) {
@@ -200,5 +212,61 @@ public class AnimalServiceImp implements AnimalService {
         // 先删子表图片，再删主表动物
         animalImageMapper.deleteByAnimalIds(animalIds);
         return animalMapper.deleteAnimalByAnimalIds(animalIds);
+    }
+
+    private void normalizeCategoryAndBreed(Animal animal, boolean required) {
+        if (animal == null) {
+            return;
+        }
+
+        boolean hasCategoryInput = hasText(animal.getCategoryId()) || hasText(animal.getSpecies());
+        boolean hasBreedInput = hasText(animal.getBreedId());
+
+        if (!required && !hasCategoryInput && !hasBreedInput) {
+            return;
+        }
+
+        Category category = null;
+        if (hasText(animal.getCategoryId())) {
+            category = categoryMapper.selectCategoryByCategoryId(animal.getCategoryId());
+        } else if ("猫".equals(animal.getSpecies())) {
+            category = categoryMapper.selectCategoryByCode("cat");
+        } else if ("狗".equals(animal.getSpecies())) {
+            category = categoryMapper.selectCategoryByCode("dog");
+        }
+
+        if (category == null || Boolean.FALSE.equals(category.getEnabled())) {
+            if (required) {
+                throw new RuntimeException("请选择有效的动物类别");
+            }
+            if (hasCategoryInput) {
+                throw new RuntimeException("动物类别无效或已停用");
+            }
+            return;
+        }
+
+        animal.setCategoryId(category.getCategoryId());
+        animal.setSpecies(category.getName());
+
+        Breed breed = null;
+        if (hasText(animal.getBreedId())) {
+            breed = breedMapper.selectBreedByBreedId(animal.getBreedId());
+            if (breed == null || Boolean.FALSE.equals(breed.getEnabled())) {
+                throw new RuntimeException("动物品种无效或已停用");
+            }
+            if (!category.getCategoryId().equals(breed.getCategoryId())) {
+                throw new RuntimeException("动物品种与动物类别不匹配");
+            }
+        } else {
+            breed = breedMapper.selectDefaultBreedByCategoryId(category.getCategoryId());
+        }
+
+        if (breed != null) {
+            animal.setBreedId(breed.getBreedId());
+        }
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.trim().isEmpty();
     }
 }

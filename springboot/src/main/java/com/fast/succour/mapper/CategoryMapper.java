@@ -18,6 +18,8 @@ public interface CategoryMapper {
 
     Category selectCategoryByCategoryId(String categoryId);
 
+    Category selectCategoryByCode(String code);
+
     int insertCategory(Category category);
 
     int updateCategory(Category category);

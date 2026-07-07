@@ -1,5 +1,6 @@
 package com.fast.succour.service.impl;
 
+import com.fast.succour.domain.CatDogDetectionResult;
 import com.fast.succour.service.PythonService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -76,6 +77,39 @@ public class PythonServiceImp implements PythonService {
         float[] result = new float[arr.size()];
         for (int i = 0; i < arr.size(); i++) {
             result[i] = (float) arr.get(i).asDouble();
+        }
+
+        return result;
+    }
+
+    @Override
+    public CatDogDetectionResult detectCatDogByPath(String path) throws Exception {
+        String url = "http://localhost:8000/detect_cat_dog_by_path?path=" +
+                URLEncoder.encode(path, "UTF-8");
+
+        HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+        conn.setRequestMethod("GET");
+
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(conn.getInputStream())
+        );
+
+        String json = reader.readLine();
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(json);
+
+        CatDogDetectionResult result = new CatDogDetectionResult();
+        result.setCatDog(node.path("is_cat_dog").asBoolean(false));
+        result.setCategoryCode(node.path("category_code").asText(null));
+        result.setCategoryName(node.path("category_name").asText(null));
+        result.setConfidence(node.hasNonNull("confidence") ? node.get("confidence").asDouble() : null);
+        result.setMessage(node.path("message").asText(null));
+
+        if ("cat".equals(result.getCategoryCode())) {
+            result.setCategoryId("cat");
+        } else if ("dog".equals(result.getCategoryCode())) {
+            result.setCategoryId("dog");
         }
 
         return result;

@@ -439,7 +439,6 @@ INSERT INTO `sys_menu` VALUES (1, '系统管理', 0, 99, 'system', NULL, '', '',
 INSERT INTO `sys_menu` VALUES (2, '用户管理', 1, 1, 'user', 'system/user/index', '', '', 1, 1, 'C', '0', '0', '用户管理', 'admin', '2025-08-30 08:59:54', 'admin', '2025-12-15 00:05:07', '用户管理菜单');
 INSERT INTO `sys_menu` VALUES (3, '角色管理', 1, 2, 'role', 'system/role/index', '', '', 1, 1, 'C', '0', '0', '角色管理', 'admin', '2025-08-30 08:59:54', 'admin', '2025-12-15 00:05:10', '角色管理菜单');
 INSERT INTO `sys_menu` VALUES (4, '菜单管理', 1, 3, 'menu', 'system/menu/index', '', '', 1, 1, 'C', '0', '0', '菜单管理', 'admin', '2025-08-30 08:59:54', 'admin', '2025-12-15 00:05:12', '菜单管理菜单');
-INSERT INTO `sys_menu` VALUES (2006, '动物分类管理', 0, 100, 'category', 'succour/category/indx', NULL, '', 1, 1, 'C', '0', '0', '动物分类管理', 'admin', '2026-04-15 17:17:16', 'admin', '2026-04-15 17:20:33', '');
 INSERT INTO `sys_menu` VALUES (2007, '动物档案管理', 0, 1, 'animal', 'succour/animals/index', NULL, '', 1, 1, 'C', '0', '0', '动物档案管理', 'admin', '2026-04-22 20:12:13', 'admin', '2026-04-23 20:52:15', '');
 INSERT INTO `sys_menu` VALUES (2008, '轮播图管理', 0, 2, 'banner', 'succour/banner/index', NULL, '', 1, 1, 'C', '0', '0', '轮播图管理', 'admin', '2026-04-27 20:05:55', '', NULL, '');
 INSERT INTO `sys_menu` VALUES (2009, '领养申请审核', 0, 4, 'adopt', 'succour/adopt/index', NULL, '', 1, 1, 'C', '0', '0', '领养申请审核', 'admin', '2026-05-09 22:46:59', '', NULL, '');

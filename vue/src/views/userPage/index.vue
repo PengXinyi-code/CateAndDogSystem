@@ -5,7 +5,7 @@
             <div class="header">
                 <div class="header-left">
                     <img src="@/assets/logo/logo.png" alt="">
-                    <div class="titles" @click="router.push('/user/home')">基于图像识别的流浪动物管理系统</div>
+                    <div class="titles" @click="router.push('/user/home')">校园流浪猫狗管理平台</div>
                 </div>
                 <div class="header-center">
                     <div class="front-header-nav">
@@ -161,10 +161,11 @@ const logout = () => {
     border-bottom: none !important;
 }
 .header-left {
-    width: 450px;
+    width: 300px;
     display: flex;
     align-items: center;
     padding-left: 30px;
+    flex-shrink: 0;
 }
 .header-left img, .header-dropdown img {
     width: 40px;
@@ -174,10 +175,15 @@ const logout = () => {
 .titles {
     color: #fff;
     cursor: pointer;
-    margin-left: 15px;
-    font-size: 22px;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* 文字阴影 */
+    margin-left: 12px;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
     transition: all 0.3s ease;
 }
 .titles:hover {

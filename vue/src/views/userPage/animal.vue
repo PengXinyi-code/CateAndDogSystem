@@ -4,12 +4,12 @@
       <h1 class="page-title">动物档案</h1>
       <div class="filter-section">
         <div class="filter-group">
-          <span class="filter-label">名称搜索：</span>
+          <span class="filter-label">名称</span>
           <el-input
               v-model="nameSearch"
               placeholder="请输入动物名称"
               clearable
-              style="width: 200px"
+              class="filter-control"
               @clear="handleFilterChange"
               @keyup.enter="handleFilterChange"
           >
@@ -19,15 +19,32 @@
           </el-input>
         </div>
         <div class="filter-group">
-          <span class="filter-label">种类筛选：</span>
-          <el-radio-group v-model="speciesFilter" @change="handleFilterChange">
-            <el-radio-button label="">全部</el-radio-button>
-            <el-radio-button label="猫">猫咪</el-radio-button>
-            <el-radio-button label="狗">狗狗</el-radio-button>
-          </el-radio-group>
+          <span class="filter-label">分类</span>
+          <el-select
+              v-model="categoryFilter"
+              placeholder="猫 / 狗"
+              clearable
+              class="filter-control filter-control--short"
+              @change="handleCategoryChange"
+          >
+            <el-option v-for="item in categoryOptions" :key="item.categoryId" :label="item.name" :value="item.categoryId" />
+          </el-select>
         </div>
         <div class="filter-group">
-          <span class="filter-label">领养状态：</span>
+          <span class="filter-label">品种</span>
+          <el-select
+              v-model="breedFilter"
+              placeholder="请选择品种"
+              clearable
+              class="filter-control"
+              :disabled="!categoryFilter"
+              @change="handleFilterChange"
+          >
+            <el-option v-for="item in breedOptions" :key="item.breedId" :label="item.name" :value="item.breedId" />
+          </el-select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">领养状态</span>
           <el-radio-group v-model="adoptFilter" @change="handleFilterChange">
             <el-radio-button label="">全部</el-radio-button>
             <el-radio-button label="待领养">待领养</el-radio-button>
@@ -58,10 +75,10 @@
           </el-image>
           <div class="card-badges">
             <el-tag
-                :type="animal.species === '猫' ? 'success' : 'primary'"
+                :type="animal.categoryId === 'cat' || animal.species === '猫' ? 'success' : 'primary'"
                 class="species-badge"
             >
-              {{ animal.species }}
+              {{ animal.categoryName || animal.species }}
             </el-tag>
             <el-tag
                 :type="animal.isAdopted ? 'success' : 'warning'"
@@ -73,6 +90,7 @@
         </div>
         <div class="card-info">
           <h3 class="animal-name">{{ animal.name }}</h3>
+          <div v-if="animal.breedName" class="animal-breed">{{ animal.breedName }}</div>
           <div class="animal-meta">
             <div class="meta-item">
               <el-icon><Location /></el-icon>
@@ -108,6 +126,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { listAnimal } from '@/api/sccour/animals'
+import { listCategory } from '@/api/sccour/category'
+import { listBreed } from '@/api/sccour/breed'
 import { Picture, Location, Clock } from '@element-plus/icons-vue'
 import {useRouter} from 'vue-router'
 import {resolveImageUrl} from '@/utils/image'
@@ -118,14 +138,18 @@ const animalList = ref([])
 const total = ref(0)
 const loading = ref(false)
 const nameSearch = ref('')
-const speciesFilter = ref('')
+const categoryFilter = ref('')
+const breedFilter = ref('')
 const adoptFilter = ref('')
+const categoryOptions = ref([])
+const breedOptions = ref([])
 
 const queryParams = ref({
   pageNum: 1,
   pageSize: 8,
   name: null,
-  species: null,
+  categoryId: null,
+  breedId: null,
   isAdopted: null,
   status: 'approved'
 })
@@ -153,10 +177,15 @@ const getList = () => {
   } else {
     delete params.name
   }
-  if (speciesFilter.value) {
-    params.species = speciesFilter.value
+  if (categoryFilter.value) {
+    params.categoryId = categoryFilter.value
   } else {
-    delete params.species
+    delete params.categoryId
+  }
+  if (breedFilter.value) {
+    params.breedId = breedFilter.value
+  } else {
+    delete params.breedId
   }
   // 确保始终只显示审核通过的动物
   params.status = 'approved'
@@ -181,6 +210,24 @@ const handleFilterChange = () => {
   getList()
 }
 
+const loadBreedOptions = (categoryId) => {
+  if (!categoryId) {
+    breedOptions.value = []
+    return Promise.resolve()
+  }
+  return listBreed({ pageNum: 1, pageSize: 100, categoryId, enabled: true }).then(response => {
+    breedOptions.value = response.rows || []
+  })
+}
+
+const handleCategoryChange = (categoryId) => {
+  breedFilter.value = ''
+  breedOptions.value = []
+  loadBreedOptions(categoryId).then(() => {
+    handleFilterChange()
+  })
+}
+
 const handleSizeChange = (val) => {
   queryParams.value.pageSize = val
   getList()
@@ -192,6 +239,9 @@ const handlePageChange = (val) => {
 }
 
 onMounted(() => {
+  listCategory({ pageNum: 1, pageSize: 100, enabled: true }).then(response => {
+    categoryOptions.value = response.rows || []
+  })
   getList()
 })
 </script>
@@ -219,9 +269,10 @@ onMounted(() => {
 .filter-section {
   display: flex;
   flex-wrap: wrap;
-  gap: 30px;
+  align-items: center;
+  gap: 14px 18px;
   background: #fff;
-  padding: 20px;
+  padding: 16px 18px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
@@ -229,13 +280,23 @@ onMounted(() => {
 .filter-group {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  min-width: 0;
 }
 
 .filter-label {
   font-size: 14px;
   color: #666;
   font-weight: 500;
+  white-space: nowrap;
+}
+
+.filter-control {
+  width: 190px;
+}
+
+.filter-control--short {
+  width: 130px;
 }
 
 .animals-grid {
@@ -301,10 +362,16 @@ onMounted(() => {
 .animal-name {
   font-size: 18px;
   color: #333;
-  margin: 0 0 12px;
+  margin: 0 0 6px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.animal-breed {
+  color: #999;
+  font-size: 13px;
+  margin-bottom: 10px;
 }
 
 .animal-meta {
@@ -347,8 +414,18 @@ onMounted(() => {
     grid-template-columns: repeat(2, 1fr);
   }
   .filter-section {
-    flex-direction: column;
+    align-items: stretch;
     gap: 15px;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-control,
+  .filter-control--short {
+    flex: 1;
+    width: auto;
   }
 }
 

@@ -145,8 +145,12 @@ onMounted(() => {
     .logo-title {
       color: var(--navbar-text);
       font-weight: 600;
-      font-size: 25px;
+      font-size: 20px;
+      line-height: 1.2;
+      max-width: 280px;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 

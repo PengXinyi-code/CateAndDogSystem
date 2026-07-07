@@ -48,7 +48,18 @@ export function getAnimal(animalName){
 export function  addAnimal(data){
     const formData = new FormData()
     formData.append('name', data.name)
-    formData.append('species', data.species)
+    if (data.species) {
+        formData.append('species', data.species)
+    }
+    if (data.categoryId) {
+        formData.append('categoryId', data.categoryId)
+    }
+    if (data.breedId) {
+        formData.append('breedId', data.breedId)
+    }
+    if (data.description) {
+        formData.append('description', data.description)
+    }
     formData.append('location', data.location)
     formData.append('firstFoundTime', data.firstFoundTime)
     formData.append('isAdopted', data.isAdopted)

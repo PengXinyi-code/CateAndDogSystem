@@ -1,25 +1,28 @@
 <template>
   <div>
     <!-- 顶部搜索区域 -->
-    <el-form :model="queryParams" ref="queryRef" :inline="true" label-width="80px">
+    <el-form class="animal-search-form" :model="queryParams" ref="queryRef" :inline="true" label-width="76px">
       <el-form-item label="动物名称" prop="name">
-        <el-input v-model="queryParams.name" placeholder="请输入动物名称" clearable @keyup.enter="handleQuery" />
+        <el-input class="search-control" v-model="queryParams.name" placeholder="请输入动物名称" clearable @keyup.enter="handleQuery" />
       </el-form-item>
-      <el-form-item label="种类" prop="species">
-        <el-select v-model="queryParams.species" placeholder="请选择种类" clearable style="width: 200px">
-          <el-option label="猫" value="猫" />
-          <el-option label="狗" value="狗" />
-          <el-option label="其他" value="其他" />
+      <el-form-item label="类别" prop="categoryId">
+        <el-select class="search-control search-control--short" v-model="queryParams.categoryId" placeholder="请选择类别" clearable @change="handleQueryCategoryChange">
+          <el-option v-for="item in categoryOptions" :key="item.categoryId" :label="item.name" :value="item.categoryId" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="品种" prop="breedId">
+        <el-select class="search-control" v-model="queryParams.breedId" placeholder="请选择品种" clearable :disabled="!queryParams.categoryId">
+          <el-option v-for="item in queryBreedOptions" :key="item.breedId" :label="item.name" :value="item.breedId" />
         </el-select>
       </el-form-item>
       <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="审核状态" clearable style="width: 200px">
+        <el-select class="search-control" v-model="queryParams.status" placeholder="审核状态" clearable>
           <el-option label="待审核" value="pending" />
           <el-option label="已通过" value="approved" />
           <el-option label="已拒绝" value="rejected" />
         </el-select>
       </el-form-item>
-      <el-form-item>
+      <el-form-item class="search-actions">
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
@@ -30,12 +33,6 @@
       <el-col :span="1.5">
         <el-button type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
       </el-col>
-      <el-col :span="1.5">
-        <el-button type="success" plain icon="Edit" @click="handleUpdate" :disabled="single">修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="danger" plain icon="Delete" @click="handleDelete" :disabled="multiple">删除</el-button>
-      </el-col>
     </el-row>
 
     <!-- 表格 -->
@@ -43,15 +40,16 @@
         @row-click="clickRow"
         :data="animalList"
         ref="tableRef"
+        class="animal-table"
         highlight-current-row
         border
         v-loading="loading"
         @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="序号" align="center" type="index" :index="indexMethod" />
+      <el-table-column type="selection" width="44" align="center" />
+      <el-table-column label="序号" align="center" type="index" :index="indexMethod" width="60" />
 
-      <el-table-column label="动物图片" align="center" width="100">
+      <el-table-column label="动物图片" align="center" width="96">
         <template #default="scope">
           <el-image
               v-if="scope.row.imageUrl"
@@ -64,22 +62,23 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="动物名称" align="center" prop="name" />
-      <el-table-column label="种类" align="center" prop="species">
+      <el-table-column label="动物名称" align="center" prop="name" min-width="90" show-overflow-tooltip />
+      <el-table-column label="类别" align="center" prop="categoryName" width="82">
         <template #default="scope">
-          <el-tag :type="scope.row.species === '猫' ? 'success' : (scope.row.species === '狗' ? 'primary' : 'info')">
-            {{ scope.row.species }}
+          <el-tag :type="(scope.row.categoryId || scope.row.species) === 'cat' || scope.row.species === '猫' ? 'success' : 'primary'">
+            {{ scope.row.categoryName || scope.row.species }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="发现位置" align="center" prop="location" show-overflow-tooltip />
+      <el-table-column label="品种" align="center" prop="breedName" min-width="90" show-overflow-tooltip />
+      <el-table-column label="发现位置" align="center" prop="location" min-width="110" show-overflow-tooltip />
 
       <!-- 新增：介绍列 -->
-      <el-table-column label="介绍" align="center" prop="description" show-overflow-tooltip width="200" />
+      <el-table-column label="介绍" align="center" prop="description" show-overflow-tooltip min-width="110" />
 
-      <el-table-column label="发现时间" align="center" prop="firstFoundTime" width="160" />
+      <el-table-column label="发现时间" align="center" prop="firstFoundTime" width="138" />
 
-      <el-table-column label="领养状态" align="center" prop="isAdopted">
+      <el-table-column label="领养状态" align="center" prop="isAdopted" width="92">
         <template #default="scope">
           <el-tag :type="scope.row.isAdopted ? 'success' : 'info'">
             {{ scope.row.isAdopted ? '已领养' : '待领养' }}
@@ -87,7 +86,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="审核状态" align="center" prop="status">
+      <el-table-column label="审核状态" align="center" prop="status" width="92">
         <template #default="scope">
           <el-tag
               :type="scope.row.status === 'approved' ? 'success'
@@ -102,10 +101,12 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="操作" align="center" width="180" fixed="right">
+      <el-table-column label="操作" align="center" width="124">
         <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click.stop="handleUpdate(scope.row)">修改</el-button>
-          <el-button link type="danger" icon="Delete" @click.stop="handleDelete(scope.row)">删除</el-button>
+          <div class="table-actions">
+            <el-button link type="primary" icon="Edit" @click.stop="handleUpdate(scope.row)">修改</el-button>
+            <el-button link type="danger" icon="Delete" @click.stop="handleDelete(scope.row)">删除</el-button>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -148,11 +149,15 @@
           <el-input v-model="form.name" placeholder="请输入动物名称" />
         </el-form-item>
 
-        <el-form-item label="种类" prop="species">
-          <el-select v-model="form.species" placeholder="请选择种类" style="width: 100%">
-            <el-option label="猫" value="猫" />
-            <el-option label="狗" value="狗" />
-            <el-option label="其他" value="其他" />
+        <el-form-item label="类别" prop="categoryId">
+          <el-select v-model="form.categoryId" placeholder="请选择类别" style="width: 100%" @change="handleFormCategoryChange">
+            <el-option v-for="item in categoryOptions" :key="item.categoryId" :label="item.name" :value="item.categoryId" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="品种" prop="breedId">
+          <el-select v-model="form.breedId" placeholder="请选择品种" style="width: 100%" :disabled="!form.categoryId">
+            <el-option v-for="item in formBreedOptions" :key="item.breedId" :label="item.name" :value="item.breedId" />
           </el-select>
         </el-form-item>
 
@@ -209,6 +214,8 @@ import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { Plus } from "@element-plus/icons-vue";
 import { listAnimal, getAnimal, delAnimal, addAnimal, updateAnimal } from "@/api/sccour/animals.js";
+import { listCategory } from "@/api/sccour/category.js";
+import { listBreed } from "@/api/sccour/breed.js";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { resolveImageUrl } from "@/utils/image";
 
@@ -219,12 +226,16 @@ const total = ref(0);
 const loading = ref(false);
 const title = ref("");
 const open = ref(false);
+const categoryOptions = ref([]);
+const queryBreedOptions = ref([]);
+const formBreedOptions = ref([]);
 
 const queryParams = ref({
   pageNum: 1,
   pageSize: 10,
   name: null,
-  species: null,
+  categoryId: null,
+  breedId: null,
   status: null
 });
 
@@ -232,7 +243,8 @@ const form = ref({});
 
 const rules = ref({
   name: [{ required: true, message: "动物名称不能为空", trigger: "blur" }],
-  species: [{ required: true, message: "种类不能为空", trigger: "change" }],
+  categoryId: [{ required: true, message: "类别不能为空", trigger: "change" }],
+  breedId: [{ required: true, message: "品种不能为空", trigger: "change" }],
   location: [{ required: true, message: "发现位置不能为空", trigger: "blur" }],
   firstFoundTime: [{ required: true, message: "发现时间不能为空", trigger: "blur" }]
 });
@@ -262,6 +274,43 @@ const getList = () => {
   });
 };
 
+const loadCategoryOptions = () => {
+  return listCategory({ pageNum: 1, pageSize: 100, enabled: true }).then(response => {
+    categoryOptions.value = response.rows || [];
+  });
+};
+
+const loadBreedOptions = (categoryId) => {
+  if (!categoryId) {
+    return Promise.resolve([]);
+  }
+  return listBreed({ pageNum: 1, pageSize: 100, categoryId, enabled: true }).then(response => response.rows || []);
+};
+
+const handleQueryCategoryChange = (categoryId) => {
+  queryParams.value.breedId = null;
+  queryBreedOptions.value = [];
+  if (categoryId) {
+    loadBreedOptions(categoryId).then(rows => {
+      queryBreedOptions.value = rows;
+    });
+  }
+};
+
+const handleFormCategoryChange = (categoryId) => {
+  form.value.breedId = null;
+  formBreedOptions.value = [];
+  if (categoryId) {
+    loadBreedOptions(categoryId).then(rows => {
+      formBreedOptions.value = rows;
+      const defaultBreed = rows.find(item => item.defaultBreed) || rows[0];
+      if (defaultBreed) {
+        form.value.breedId = defaultBreed.breedId;
+      }
+    });
+  }
+};
+
 const handleQuery = () => {
   queryParams.value.pageNum = 1;
   getList();
@@ -269,6 +318,7 @@ const handleQuery = () => {
 
 const resetQuery = () => {
   queryRef.value.resetFields();
+  queryBreedOptions.value = [];
   handleQuery();
 };
 
@@ -297,7 +347,8 @@ const reset = () => {
   form.value = {
     id: null,
     name: null,
-    species: null,
+    categoryId: null,
+    breedId: null,
     firstFoundTime: null,
     location: null,
     description: null,
@@ -305,6 +356,7 @@ const reset = () => {
     status: 'pending',
     imageUrl: null
   };
+  formBreedOptions.value = [];
   if (animalRef.value) {
     animalRef.value.resetFields();
   }
@@ -321,6 +373,11 @@ const handleUpdate = (row) => {
   const id = row.id || ids.value[0];
   getAnimal(id).then(response => {
     form.value = response.data;
+    if (form.value.categoryId) {
+      loadBreedOptions(form.value.categoryId).then(rows => {
+        formBreedOptions.value = rows;
+      });
+    }
     open.value = true;
     title.value = "修改动物档案";
   });
@@ -378,7 +435,9 @@ const handleUploadSuccess = (res) => {
 };
 
 onMounted(() => {
-  getList();
+  loadCategoryOptions().then(() => {
+    getList();
+  });
 
   if (route.query.fromRecognition === 'true' && route.query.imageUrl) {
     reset();
@@ -391,6 +450,73 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.animal-search-form {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 10px 12px;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.animal-search-form :deep(.el-form-item) {
+  margin-right: 0;
+  margin-bottom: 0;
+}
+
+.animal-search-form :deep(.el-form-item__label) {
+  padding-right: 8px;
+}
+
+.search-control {
+  width: 176px;
+}
+
+.search-control--short {
+  width: 128px;
+}
+
+.search-actions {
+  flex-shrink: 0;
+}
+
+.animal-table {
+  width: 100%;
+}
+
+.animal-table :deep(.el-table__cell) {
+  padding: 8px 0;
+}
+
+.animal-table :deep(.cell) {
+  padding: 0 8px;
+}
+
+.animal-table :deep(.el-button + .el-button) {
+  margin-left: 6px;
+}
+
+.table-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  line-height: 1;
+}
+
+.table-actions :deep(.el-button) {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  line-height: 24px;
+}
+
+.table-actions :deep(.el-icon) {
+  margin-right: 3px;
+}
+
 .animal-uploader :deep(.el-upload) {
   border: 2px dashed #d9d9d9;
   border-radius: 8px;
@@ -409,5 +535,11 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+@media (max-width: 1180px) {
+  .animal-search-form {
+    flex-wrap: wrap;
+  }
 }
 </style>

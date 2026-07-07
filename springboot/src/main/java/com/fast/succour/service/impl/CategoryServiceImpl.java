@@ -7,7 +7,6 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 /*
 动物分类业务层
@@ -43,17 +42,28 @@ public class CategoryServiceImpl implements ICategoryService {
      */
     @Override
     public int insertCategory(Category category) {
-        category.setCategoryId(String.valueOf(UUID.randomUUID()));
-        return categoryMapper.insertCategory(category);
+        throw new RuntimeException("系统一级分类已固定为猫和狗，请在品种字典中维护细分类");
     }
 
     @Override
     public int updateCategory(Category category) {
+        if (isCoreCategory(category.getCategoryId()) && Boolean.FALSE.equals(category.getEnabled())) {
+            throw new RuntimeException("猫狗核心分类不能停用");
+        }
         return categoryMapper.updateCategory(category);
     }
 
     @Override
     public int deleteCategoryByCategoryIds(String[] categoryIds) {
+        for (String categoryId : categoryIds) {
+            if (isCoreCategory(categoryId)) {
+                throw new RuntimeException("猫狗核心分类不能删除");
+            }
+        }
         return categoryMapper.deleteCategoryByCategoryIds(categoryIds);
+    }
+
+    private boolean isCoreCategory(String categoryId) {
+        return "cat".equals(categoryId) || "dog".equals(categoryId);
     }
 }

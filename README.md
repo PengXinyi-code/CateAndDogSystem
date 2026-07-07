@@ -1,6 +1,6 @@
 # CateAndDogSystem
 
-基于图像识别的校园流浪动物管理系统，包含：
+基于图像识别的校园流浪猫狗管理平台，包含：
 
 - `springboot`：后端服务
 - `vue`：前端管理端和用户端
@@ -72,6 +72,13 @@ pip install -r requirement.txt
 
 #### 启动服务
 
+当前 Python 服务包含两步能力：
+
+- `/detect_cat_dog_by_path`：使用 YOLOv8n 先判断图片中是否存在猫或狗。
+- `/extract_by_path`：使用 ResNet50 提取特征向量，用于同类动物档案相似度匹配。
+
+首次启动或首次导入服务时，YOLOv8n 权重会自动下载为 `photo_recognize/yolov8n.pt`。该文件属于本地模型缓存，已被 `.gitignore` 忽略，不需要提交。
+
 ```powershell
 uvicorn main:app --port 8000
 ```
@@ -85,6 +92,14 @@ uvicorn main:app --port 8000
 - 默认密码：`123456`
 
 初始化时导入根目录下的 `animal-succour.sql` 即可。
+
+当前项目已收敛为“基于图像识别的校园流浪猫狗管理平台”。首次导入旧数据脚本后，请继续执行分类与品种标准化迁移脚本：
+
+```powershell
+mysql -u root -p animal-succour < db\20260707_cat_dog_standardization.sql
+```
+
+该脚本会把一级分类固定为“猫/狗”，新增猫狗 Top9+其他的 `breed` 品种字典，并为 `animals` 表补充 `category_id`、`breed_id` 字段。旧的 `species` 字段暂时保留用于兼容。
 
 如果导入 SQL 时出现 `utf8mb4_0900_ai_ci` 相关报错，可替换为 `utf8mb4_general_ci` 后再导入。
 

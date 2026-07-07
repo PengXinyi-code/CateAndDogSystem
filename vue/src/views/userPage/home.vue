@@ -62,7 +62,7 @@
                     未匹配到动物
                   </h3>
                   <p class="result-message">{{ recognitionResult.message }}</p>
-                  <el-button type="warning" size="small" @click.stop="goToCreateProfile">
+                  <el-button v-if="recognitionResult.catDog !== false" type="warning" size="small" @click.stop="goToCreateProfile">
                     新建档案
                   </el-button>
                 </div>
@@ -146,11 +146,14 @@
         <el-form-item label="动物名称" prop="name">
           <el-input v-model="addForm.name" placeholder="请输入动物名称" />
         </el-form-item>
-        <el-form-item label="种类" prop="species">
-          <el-select v-model="addForm.species" placeholder="请选择种类" style="width: 100%">
-            <el-option label="猫" value="猫" />
-            <el-option label="狗" value="狗" />
-            <el-option label="其他" value="其他" />
+        <el-form-item label="类别" prop="categoryId">
+          <el-select v-model="addForm.categoryId" placeholder="请选择类别" style="width: 100%" @change="handleAddCategoryChange">
+            <el-option v-for="item in categoryOptions" :key="item.categoryId" :label="item.name" :value="item.categoryId" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="品种" prop="breedId">
+          <el-select v-model="addForm.breedId" placeholder="请选择品种" style="width: 100%" :disabled="!addForm.categoryId">
+            <el-option v-for="item in addBreedOptions" :key="item.breedId" :label="item.name" :value="item.breedId" />
           </el-select>
         </el-form-item>
         <el-form-item label="发现时间" prop="firstFoundTime">
@@ -189,6 +192,8 @@
 <script setup>
 import {listBanner} from "@/api/sccour/banner.js";
 import {listAnimal, addAnimal} from "@/api/sccour/animals.js";
+import {listCategory} from "@/api/sccour/category.js";
+import {listBreed} from "@/api/sccour/breed.js";
 import {useRouter} from "vue-router";
 import {Female, House, Male, UploadFilled, CircleCheckFilled, WarningFilled, Plus} from "@element-plus/icons-vue";
 import {ElMessage} from "element-plus";
@@ -206,6 +211,8 @@ const bannerList = ref([])
 const animalList = ref([])
 const recognitionResult = ref(null)
 const previewImage = ref('')
+const categoryOptions = ref([])
+const addBreedOptions = ref([])
 
 const router = useRouter()
 
@@ -221,7 +228,8 @@ const addDialogVisible = ref(false)
 const animalFormRef = ref(null)
 const addForm = ref({
   name: null,
-  species: null,
+  categoryId: null,
+  breedId: null,
   firstFoundTime: null,
   location: null,
   isAdopted: false,
@@ -231,12 +239,43 @@ const addForm = ref({
 
 const addRules = ref({
   name: [{ required: true, message: "动物名称不能为空", trigger: "blur" }],
-  species: [{ required: true, message: "种类不能为空", trigger: "change" }],
+  categoryId: [{ required: true, message: "类别不能为空", trigger: "change" }],
+  breedId: [{ required: true, message: "品种不能为空", trigger: "change" }],
   location: [{ required: true, message: "发现位置不能为空", trigger: "blur" }],
   firstFoundTime: [{ required: true, message: "发现时间不能为空", trigger: "blur" }]
 })
 
+const loadCategoryOptions = () => {
+  return listCategory({ pageNum: 1, pageSize: 100, enabled: true }).then(res => {
+    categoryOptions.value = res.rows || []
+  })
+}
+
+const loadBreedOptions = (categoryId) => {
+  if (!categoryId) return Promise.resolve([])
+  return listBreed({ pageNum: 1, pageSize: 100, categoryId, enabled: true }).then(res => res.rows || [])
+}
+
+const handleAddCategoryChange = (categoryId) => {
+  addForm.value.breedId = null
+  addBreedOptions.value = []
+  if (categoryId) {
+    loadBreedOptions(categoryId).then(rows => {
+      addBreedOptions.value = rows
+      const defaultBreed = rows.find(item => item.defaultBreed) || rows[0]
+      if (defaultBreed) {
+        addForm.value.breedId = defaultBreed.breedId
+      }
+    })
+  }
+}
+
 const goToCreateProfile = () => {
+  if (recognitionResult.value && recognitionResult.value.catDog === false) {
+    ElMessage.warning(recognitionResult.value.message || '未检测到猫狗，请上传猫或狗的清晰照片')
+    return
+  }
+
   if (recognitionResult.value && !recognitionResult.value.matched && previewImage.value) {
     const formData = new FormData()
     const blob = dataURLtoBlob(previewImage.value)
@@ -252,17 +291,29 @@ const goToCreateProfile = () => {
     }).then(response => {
       if (response.code === 200) {
         addForm.value.imageUrl = response.url
+        applyDetectedCategory()
         addDialogVisible.value = true
       } else {
         ElMessage.error('图片上传失败')
+        applyDetectedCategory()
         addDialogVisible.value = true
       }
     }).catch(error => {
       ElMessage.error('图片上传失败：' + (error.message || '未知错误'))
+      applyDetectedCategory()
       addDialogVisible.value = true
     })
   } else {
+    applyDetectedCategory()
     addDialogVisible.value = true
+  }
+}
+
+const applyDetectedCategory = () => {
+  const categoryId = recognitionResult.value && recognitionResult.value.categoryId
+  if (categoryId) {
+    addForm.value.categoryId = categoryId
+    handleAddCategoryChange(categoryId)
   }
 }
 
@@ -321,13 +372,15 @@ const cancelAdd = () => {
 const resetAddForm = () => {
   addForm.value = {
     name: null,
-    species: null,
+    categoryId: null,
+    breedId: null,
     firstFoundTime: null,
     location: null,
     isAdopted: false,
     status: 'pending',
     imageUrl: null
   }
+  addBreedOptions.value = []
   if (animalFormRef.value) {
     animalFormRef.value.resetFields()
   }
@@ -389,6 +442,8 @@ const resetRecognition = () => {
 }
 
 onMounted(() => {
+  loadCategoryOptions()
+
   listBanner().then(res => {
     bannerList.value = res.rows
   })

@@ -1,9 +1,25 @@
 import torch
 import torchvision.models as models
 import torchvision.transforms as transforms
+from torchvision.models import ResNet50_Weights
 import numpy as np
 from fastapi import FastAPI, UploadFile, File
 from PIL import Image
+from pathlib import Path
+
+
+_path_exists = Path.exists
+
+
+def _safe_path_exists(self):
+    try:
+        return _path_exists(self)
+    except OSError:
+        return False
+
+
+Path.exists = _safe_path_exists
+from ultralytics import YOLO
 import io
 
 app = FastAPI()
@@ -11,9 +27,13 @@ app = FastAPI()
 # ======================
 # 模型加载
 # ======================
-model = models.resnet50(pretrained=True)
+model = models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
 model = torch.nn.Sequential(*list(model.children())[:-1])
 model.eval()
+
+detector = YOLO("yolov8n.pt")
+CAT_DOG_CLASS_NAMES = {"cat": "猫", "dog": "狗"}
+CAT_DOG_CONFIDENCE = 0.35
 
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
@@ -44,6 +64,40 @@ def extract_feature(path):
 
     return feature.astype(np.float32)
 
+
+def detect_cat_dog(path):
+    results = detector(path, verbose=False)
+    best = None
+
+    for result in results:
+        for box in result.boxes:
+            class_id = int(box.cls[0])
+            class_name = result.names[class_id]
+            confidence = float(box.conf[0])
+
+            if class_name not in CAT_DOG_CLASS_NAMES:
+                continue
+            if confidence < CAT_DOG_CONFIDENCE:
+                continue
+            if best is None or confidence > best["confidence"]:
+                best = {
+                    "category_code": class_name,
+                    "category_name": CAT_DOG_CLASS_NAMES[class_name],
+                    "confidence": confidence,
+                    "box": [float(v) for v in box.xyxy[0].tolist()]
+                }
+
+    if best is None:
+        return {
+            "is_cat_dog": False,
+            "message": "未检测到猫狗，请上传猫或狗的清晰照片"
+        }
+
+    return {
+        "is_cat_dog": True,
+        **best
+    }
+
 # ======================
 # API
 # ======================
@@ -61,3 +115,8 @@ def extract_feature(path):
 def extract_by_path(path: str):
     feature = extract_feature(path)
     return {"feature": feature.tolist()}
+
+
+@app.get("/detect_cat_dog_by_path")
+def detect_cat_dog_by_path(path: str):
+    return detect_cat_dog(path)

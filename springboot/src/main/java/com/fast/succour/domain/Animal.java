@@ -11,6 +11,12 @@ public class Animal {
     private Long id;
     private String name;
     private String species;
+    private String categoryId;
+    private String categoryCode;
+    private String categoryName;
+    private String breedId;
+    private String breedCode;
+    private String breedName;
     private String description;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")   // 反序列化 JSON 入参用

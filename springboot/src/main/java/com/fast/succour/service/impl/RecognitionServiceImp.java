@@ -2,6 +2,8 @@ package com.fast.succour.service.impl;
 
 import com.fast.succour.domain.Animal;
 import com.fast.succour.domain.AnimalImage;
+import com.fast.succour.domain.CatDogDetectionResult;
+import com.fast.succour.domain.RecognitionResult;
 import com.fast.succour.mapper.AnimalImageMapper;
 import com.fast.succour.mapper.AnimalMapper;
 import com.fast.succour.service.PythonService;
@@ -21,7 +23,6 @@ public class RecognitionServiceImp implements RecognitionService {
     @Value("${file.temp-path}")
     private String tempPath;
 
-    // 1. 依赖注入应该放在类级别
     @Autowired
     private AnimalImageMapper imageMapper;
 
@@ -31,64 +32,93 @@ public class RecognitionServiceImp implements RecognitionService {
     @Autowired
     private PythonService pythonService;
 
-    // 2. 常量定义在类级别
-    private static final double THRESHOLD = 0.85;
+    private static final double THRESHOLD = 0.90;
 
     @Override
-    public Animal recognize(MultipartFile file) throws Exception {
-
+    public RecognitionResult recognize(MultipartFile file) throws Exception {
         if (file == null || file.isEmpty()) {
             throw new RuntimeException("文件不能为空");
         }
 
-        //先保存到临时文件
-        String suffix = file.getOriginalFilename()
-                .substring(file.getOriginalFilename().lastIndexOf("."));
+        RecognitionResult result = new RecognitionResult();
+        File dest = saveTempFile(file);
+
+        try {
+            CatDogDetectionResult detection = pythonService.detectCatDogByPath(dest.getAbsolutePath());
+            fillDetectionResult(result, detection);
+
+            if (!Boolean.TRUE.equals(detection.getCatDog())) {
+                result.setMatched(false);
+                result.setMessage(defaultMessage(detection.getMessage(), "未检测到猫狗，请上传猫或狗的清晰照片"));
+                return result;
+            }
+
+            float[] queryFeature = pythonService.extractFeatureByPath(dest.getAbsolutePath());
+            List<AnimalImage> images = imageMapper.findByCategoryId(detection.getCategoryId());
+
+            double maxSim = 0;
+            Animal bestAnimal = null;
+
+            for (AnimalImage img : images) {
+                if (img.getFeatureVector() == null) {
+                    continue;
+                }
+
+                float[] dbFeature = VectorUtil.bytesToFloatArray(img.getFeatureVector());
+                double sim = VectorUtil.cosineSimilarity(queryFeature, dbFeature);
+
+                System.out.println("animal_id=" + img.getAnimalId() + " sim=" + sim);
+
+                if (sim > maxSim) {
+                    maxSim = sim;
+                    bestAnimal = animalMapper.findById(img.getAnimalId());
+                }
+            }
+
+            if (maxSim > THRESHOLD) {
+                result.setMatched(true);
+                result.setAnimal(bestAnimal);
+                result.setMessage("识别成功");
+                return result;
+            }
+
+            result.setMatched(false);
+            result.setMessage("未匹配到已建档猫狗，请创建新档案");
+            return result;
+        } finally {
+            deleteTempFile(dest);
+        }
+    }
+
+    private File saveTempFile(MultipartFile file) throws Exception {
+        String originalFilename = file.getOriginalFilename();
+        String suffix = ".jpg";
+        if (originalFilename != null && originalFilename.lastIndexOf(".") >= 0) {
+            suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
 
         String fileName = "tmp_" + System.currentTimeMillis() + suffix;
-
         File dest = ProjectPathUtils.resolve(tempPath).resolve(fileName).toFile();
         dest.getParentFile().mkdirs();
-
         file.transferTo(dest);
+        return dest;
+    }
 
-        //用路径提特征
-        float[] queryFeature = pythonService.extractFeatureByPath(dest.getAbsolutePath());
+    private void fillDetectionResult(RecognitionResult result, CatDogDetectionResult detection) {
+        result.setCatDog(detection.getCatDog());
+        result.setCategoryId(detection.getCategoryId());
+        result.setCategoryCode(detection.getCategoryCode());
+        result.setCategoryName(detection.getCategoryName());
+        result.setConfidence(detection.getConfidence());
+    }
 
-        // 取数据库向量
-        List<AnimalImage> images = imageMapper.findAll();
+    private String defaultMessage(String message, String fallback) {
+        return message == null || message.isEmpty() ? fallback : message;
+    }
 
-        double maxSim = 0;
-        Animal bestAnimal = null;
-
-        for (AnimalImage img : images) {
-
-            if (img.getFeatureVector() == null) continue;
-
-            float[] dbFeature = VectorUtil.bytesToFloatArray(img.getFeatureVector());
-
-            if (dbFeature == null || queryFeature == null) continue;
-
-            double sim = VectorUtil.cosineSimilarity(queryFeature, dbFeature);
-
-            System.out.println("animal_id=" + img.getAnimalId() + " sim=" + sim);
-
-            if (sim > maxSim) {
-                maxSim = sim;
-                bestAnimal = animalMapper.findById(img.getAnimalId());
-            }
-        }
-
-        //删除临时文件
-        if (dest.exists()) {
+    private void deleteTempFile(File dest) {
+        if (dest != null && dest.exists()) {
             dest.delete();
         }
-
-        // 阈值判断（关键）
-        if (maxSim > 0.90) {
-            return bestAnimal;
-        }
-
-        return null;
     }
 }

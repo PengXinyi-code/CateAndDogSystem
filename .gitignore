@@ -36,6 +36,13 @@ __pycache__/
 .mypy_cache/
 .venv/
 venv/
+photo_recognize/*.pt
+
+# Runtime uploads generated while testing
+springboot/src/main/resources/static/uploads/images/[0-9a-f][0-9a-f]*.jpg
+springboot/src/main/resources/static/uploads/images/[0-9a-f][0-9a-f]*.jpeg
+springboot/src/main/resources/static/uploads/images/[0-9a-f][0-9a-f]*.png
+springboot/src/main/resources/static/uploads/images/[0-9a-f][0-9a-f]*.webp
 
 # OS files
 .DS_Store
