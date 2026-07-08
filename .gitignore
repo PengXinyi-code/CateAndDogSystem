@@ -8,6 +8,9 @@
 # Accidental top-level duplicate upload directory
 /src/
 
+# Database migration drafts are not maintained in this repo
+db/
+
 # Java / Maven
 target/
 *.class
