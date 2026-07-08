@@ -75,10 +75,10 @@
           </el-image>
           <div class="card-badges">
             <el-tag
-                :type="animal.categoryId === 'cat' || animal.species === '猫' ? 'success' : 'primary'"
-                class="species-badge"
+                :type="animal.categoryId === 'cat' ? 'success' : 'primary'"
+                class="category-badge"
             >
-              {{ animal.categoryName || animal.species }}
+              {{ animal.categoryName }}
             </el-tag>
             <el-tag
                 :type="animal.isAdopted ? 'success' : 'warning'"
@@ -250,30 +250,31 @@ onMounted(() => {
 .animal-page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 30px 20px;
+  padding: 5px 5px;
   min-height: calc(100vh - 70px);
 }
 
 .page-header {
-  margin-bottom: 30px;
+  margin-bottom: 10px;
 }
 
 .page-title {
-  font-size: 28px;
+  font-size: 24px;
   color: #333;
-  margin: 0 0 20px;
-  padding-left: 15px;
+  margin: 0 0 8px;
+  padding-left: 10px;
   border-left: 4px solid #d79358;
+  line-height: 1.25;
 }
 
 .filter-section {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 14px 18px;
+  gap: 10px 14px;
   background: #fff;
-  padding: 16px 18px;
-  border-radius: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
@@ -285,30 +286,30 @@ onMounted(() => {
 }
 
 .filter-label {
-  font-size: 14px;
+  font-size: 13px;
   color: #666;
   font-weight: 500;
   white-space: nowrap;
 }
 
 .filter-control {
-  width: 190px;
+  width: 176px;
 }
 
 .filter-control--short {
-  width: 130px;
+  width: 118px;
 }
 
 .animals-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  margin-bottom: 30px;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .animal-card {
   background: #fff;
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   cursor: pointer;
@@ -316,13 +317,13 @@ onMounted(() => {
 }
 
 .animal-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-3px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
 .card-image {
   position: relative;
-  height: 200px;
+  height: 185px;
   overflow: hidden;
 }
 
@@ -343,41 +344,43 @@ onMounted(() => {
 
 .card-badges {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 8px;
+  left: 8px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
-.species-badge,
+.category-badge,
 .adopt-badge {
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .card-info {
-  padding: 15px;
+  padding: 9px 10px 10px;
 }
 
 .animal-name {
-  font-size: 18px;
+  font-size: 15px;
   color: #333;
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.25;
 }
 
 .animal-breed {
   color: #999;
-  font-size: 13px;
-  margin-bottom: 10px;
+  font-size: 12px;
+  margin-bottom: 6px;
+  line-height: 1.2;
 }
 
 .animal-meta {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
 }
 
 .meta-item {
@@ -385,22 +388,31 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   color: #666;
-  font-size: 13px;
+  font-size: 12px;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.meta-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .meta-item .el-icon {
-  font-size: 14px;
+  flex: 0 0 auto;
+  font-size: 13px;
   color: #999;
 }
 
 .empty-state {
-  padding: 60px 0;
+  padding: 30px 0;
 }
 
 .pagination-wrapper {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 6px;
 }
 
 @media (max-width: 1200px) {

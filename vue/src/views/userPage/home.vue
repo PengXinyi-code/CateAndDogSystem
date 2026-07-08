@@ -49,7 +49,7 @@
                     识别成功
                   </h3>
                   <p class="animal-name">名称：{{ recognitionResult.animal.name }}</p>
-                  <p>类别：{{ recognitionResult.animal.categoryName || recognitionResult.animal.species }}</p>
+                  <p>类别：{{ recognitionResult.animal.categoryName }}</p>
                   <p>位置：{{ recognitionResult.animal.location }}</p>
                   <p>领养状态：{{ recognitionResult.animal.isAdopted ? '已领养' : '待领养' }}</p>
                   <el-button type="primary" size="small" @click.stop="resetRecognition">
@@ -567,7 +567,7 @@ onMounted(() => {
 }
 
 .upload-text {
-  font-size: 14px;
+  font-size: 12px;
   color: rgba(255, 255, 255, 0.9);
   margin: 8px 0 4px;
 }

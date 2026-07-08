@@ -93,13 +93,9 @@ uvicorn main:app --port 8000
 
 初始化时导入根目录下的 `animal-succour.sql` 即可。
 
-当前项目已收敛为“基于图像识别的校园流浪猫狗管理平台”。首次导入旧数据脚本后，请继续执行分类与品种标准化迁移脚本：
+当前项目已收敛为“基于图像识别的校园流浪猫狗管理平台”。
 
-```powershell
-mysql -u root -p animal-succour < db\20260707_cat_dog_standardization.sql
-```
-
-该脚本会把一级分类固定为“猫/狗”，新增猫狗 Top9+其他的 `breed` 品种字典，并为 `animals` 表补充 `category_id`、`breed_id` 字段。旧的 `species` 字段暂时保留用于兼容。
+数据库结构更新以重新导出的 `animal-succour.sql` 为准。
 
 如果导入 SQL 时出现 `utf8mb4_0900_ai_ci` 相关报错，可替换为 `utf8mb4_general_ci` 后再导入。
 

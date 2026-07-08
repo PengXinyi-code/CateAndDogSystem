@@ -11,7 +11,7 @@
  Target Server Version : 80044 (8.0.44)
  File Encoding         : 65001
 
- Date: 17/06/2026 14:58:35
+ Date: 08/07/2026 14:08:04
 */
 
 SET NAMES utf8mb4;
@@ -90,7 +90,7 @@ CREATE TABLE `animal_images`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_animal_id`(`animal_id` ASC) USING BTREE,
   CONSTRAINT `fk_animal` FOREIGN KEY (`animal_id`) REFERENCES `animals` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 138 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '动物图像及特征表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 139 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '动物图像及特征表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of animal_images
@@ -223,139 +223,142 @@ DROP TABLE IF EXISTS `animals`;
 CREATE TABLE `animals`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '动物ID',
   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '名称（用户自定义）',
-  `species` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '种类（猫/狗/其他）',
+  `category_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '鍔ㄧ墿涓?骇鍒嗙被ID',
+  `breed_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '鍔ㄧ墿鍝佺?ID',
   `first_found_time` datetime NOT NULL COMMENT '初次发现时间',
   `location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '发现位置（地址或经纬度）',
   `is_adopted` tinyint(1) NULL DEFAULT 0 COMMENT '是否已被领养',
   `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'pending' COMMENT '审核状态（pending/approved/rejected）',
   `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '???????',
   `image_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图片地址',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 151 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '动物档案表' ROW_FORMAT = DYNAMIC;
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_animals_category`(`category_id` ASC) USING BTREE,
+  INDEX `idx_animals_breed`(`breed_id` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 152 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '动物档案表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of animals
 -- ----------------------------
-INSERT INTO `animals` VALUES (2, '年糕', '猫', '2026-04-01 09:00:00', '二教走廊拐角', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (3, '团子', '猫', '2026-04-01 10:15:00', '图书馆北门', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (4, '泡芙', '猫', '2026-04-01 11:00:00', '食堂后门垃圾桶旁', 1, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (5, '麻薯', '猫', '2026-04-01 12:20:00', '三教自习室窗外', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (6, '布丁', '猫', '2026-04-01 14:00:00', '操场看台角落', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (7, '奶糖', '猫', '2026-04-01 15:10:00', '篮球场边树荫', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (8, '桃酥', '猫', '2026-04-01 16:30:00', '校园湖畔长椅下', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (9, '椰果', '猫', '2026-04-01 17:20:00', '留学生公寓门口', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (10, '雪饼', '猫', '2026-04-01 18:00:00', '研究生宿舍楼下', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (11, '咪咪', '猫', '2026-04-02 08:20:00', '实验楼门口', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (12, '花花', '猫', '2026-04-02 09:40:00', '人文楼台阶', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (13, '灰灰', '猫', '2026-04-02 10:50:00', '艺术楼走廊', 1, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (14, '朵朵', '猫', '2026-04-02 11:30:00', '校医院旁小路', 1, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (15, '萌萌', '猫', '2026-04-02 12:10:00', '大学生活动中心', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (16, '糯糯', '猫', '2026-04-02 14:15:00', '网球场围栏边', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (17, '软软', '猫', '2026-04-02 15:25:00', '排球场旁草坪', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (18, '绵绵', '猫', '2026-04-02 16:20:00', '校园超市门口', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (19, '豆豆', '猫', '2026-04-02 17:10:00', '快递站旁角落', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (20, '球球', '猫', '2026-04-02 18:30:00', '自行车棚内', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (21, '橘子', '猫', '2026-04-03 08:10:00', '四教楼梯口', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (22, '柚子', '猫', '2026-04-03 09:20:00', '五教教室后门', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (23, '栗子', '猫', '2026-04-03 10:30:00', '图书馆南侧草坪', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (24, '柿子', '猫', '2026-04-03 11:10:00', '食堂一楼门口', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (25, '蜜桃', '猫', '2026-04-03 12:40:00', '食堂二楼露台', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (26, '蓝莓', '猫', '2026-04-03 14:20:00', '操场西侧跑道', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (27, '草莓', '猫', '2026-04-03 15:10:00', '操场东侧入口', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (28, '葡萄', '猫', '2026-04-03 16:40:00', '湖心小亭子', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (29, '荔枝', '猫', '2026-04-03 17:25:00', '教师公寓门口', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (30, '芒果', '猫', '2026-04-03 18:15:00', '北门保安室旁', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (31, '煤球', '猫', '2026-04-04 08:00:00', '一教东侧楼梯', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (32, '牛奶', '猫', '2026-04-04 09:10:00', '二教西侧楼梯', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (33, '咖啡', '猫', '2026-04-04 10:20:00', '图书馆自习区外', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (34, '可乐', '猫', '2026-04-04 11:40:00', '校园便利店', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (35, '雪碧', '猫', '2026-04-04 12:25:00', '校园主干道树荫', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (36, '拿铁', '猫', '2026-04-04 14:30:00', '实训楼门口', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (37, '摩卡', '猫', '2026-04-04 15:20:00', '工程楼旁空地', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (38, '奶绿', '猫', '2026-04-04 16:10:00', '外语楼走廊', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (39, '红茶', '猫', '2026-04-04 17:30:00', '法学院门口', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (40, '绿茶', '猫', '2026-04-04 18:20:00', '商学院台阶', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (41, '小橘', '猫', '2026-04-05 08:20:00', '音乐楼门口', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (42, '小白', '猫', '2026-04-05 09:30:00', '美术楼门口', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (43, '小黑', '猫', '2026-04-05 10:10:00', '体育学院门口', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (44, '小灰', '猫', '2026-04-05 11:20:00', '校史馆旁', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (45, '小花', '猫', '2026-04-05 12:50:00', '校园喷泉旁', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (46, '元宝', '猫', '2026-04-05 14:10:00', '东门花坛', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (47, '富贵', '猫', '2026-04-05 15:40:00', '西门花坛', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (48, '平安', '猫', '2026-04-05 16:20:00', '中央草坪', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (49, '喜乐', '猫', '2026-04-05 17:10:00', '银杏大道', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (50, '团圆', '猫', '2026-04-05 18:30:00', '樱花大道', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (51, '年糕仔', '猫', '2026-04-06 08:10:00', '一教自习室', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (52, '泡芙崽', '猫', '2026-04-06 09:20:00', '二教自习室', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (53, '麻薯球', '猫', '2026-04-06 10:30:00', '图书馆负一楼', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (54, '布丁酱', '猫', '2026-04-06 11:10:00', '食堂早餐区外', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (55, '奶糖糕', '猫', '2026-04-06 12:40:00', '食堂晚餐区外', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (56, '桃酥酥', '猫', '2026-04-06 14:20:00', '操场主席台旁', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (57, '椰果果', '猫', '2026-04-06 15:10:00', '操场沙坑旁', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (58, '雪饼饼', '猫', '2026-04-06 16:40:00', '湖畔石凳', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (59, '小绒球', '猫', '2026-04-06 17:25:00', '宿舍区花园', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (60, '小毛团', '猫', '2026-04-06 18:15:00', '校园林荫小道', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (61, '旺财', '狗', '2026-04-07 08:30:00', '一教门口广场', 1, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (62, '来福', '狗', '2026-04-07 09:00:00', '二教门口广场', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (63, '阿黄', '狗', '2026-04-07 10:15:00', '图书馆广场', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (64, '小黑', '狗', '2026-04-07 11:00:00', '食堂前广场', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (65, '小白', '狗', '2026-04-07 12:20:00', '三教门口空地', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (66, '大黄', '狗', '2026-04-07 14:00:00', '操场入口处', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (67, '皮皮', '狗', '2026-04-07 15:10:00', '篮球场中央空地', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (68, '乐乐', '狗', '2026-04-07 16:30:00', '湖畔大草坪', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (69, '欢欢', '狗', '2026-04-07 17:20:00', '留学生公寓草坪', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (70, '豆豆', '狗', '2026-04-07 18:00:00', '研究生宿舍广场', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (71, '多多', '狗', '2026-04-08 08:20:00', '实验楼前空地', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (72, '贝贝', '狗', '2026-04-08 09:40:00', '人文楼广场', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (73, '妞妞', '狗', '2026-04-08 10:50:00', '艺术楼前草坪', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (74, '丫丫', '狗', '2026-04-08 11:30:00', '校医院前小路', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (75, '壮壮', '狗', '2026-04-08 12:10:00', '活动中心广场', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (76, '虎子', '狗', '2026-04-08 14:15:00', '网球场外空地', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (77, '豹子', '狗', '2026-04-08 15:25:00', '排球场外空地', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (78, '小龙', '狗', '2026-04-08 16:20:00', '超市前广场', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (79, '大熊', '狗', '2026-04-08 17:10:00', '快递站广场', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (80, '胖胖', '狗', '2026-04-08 18:30:00', '自行车棚外空地', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (81, '土豆', '狗', '2026-04-09 08:10:00', '四教门口', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (82, '地瓜', '狗', '2026-04-09 09:20:00', '五教门口', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (83, '萝卜', '狗', '2026-04-09 10:30:00', '图书馆东侧草坪', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (84, '白菜', '狗', '2026-04-09 11:10:00', '食堂侧门', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (85, '冬瓜', '狗', '2026-04-09 12:40:00', '食堂露台下方', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (86, '毛豆', '狗', '2026-04-09 14:20:00', '操场跑道内侧', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (87, '蚕豆', '狗', '2026-04-09 15:10:00', '操场观众席后', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (88, '豌豆', '狗', '2026-04-09 16:40:00', '湖心桥边', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (89, '花生', '狗', '2026-04-09 17:25:00', '教师公寓广场', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (90, '核桃', '狗', '2026-04-09 18:15:00', '北门广场', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (91, '巴顿', '狗', '2026-04-10 08:00:00', '一教西侧广场', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (92, '将军', '狗', '2026-04-10 09:10:00', '二教东侧广场', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (93, '雷霆', '狗', '2026-04-10 10:20:00', '图书馆后门', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (94, '旋风', '狗', '2026-04-10 11:40:00', '校园主干道中段', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (95, '疾风', '狗', '2026-04-10 12:25:00', '校园十字路口', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (96, '闪电', '狗', '2026-04-10 14:30:00', '实训楼广场', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (97, '雷神', '狗', '2026-04-10 15:20:00', '工程楼广场', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (98, '战神', '狗', '2026-04-10 16:10:00', '外语楼广场', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (99, '骑士', '狗', '2026-04-10 17:30:00', '法学院广场', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (100, '王子', '狗', '2026-04-10 18:20:00', '商学院广场', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (101, '哈利', '狗', '2026-04-11 08:20:00', '音乐楼广场', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (102, '波特', '狗', '2026-04-11 09:30:00', '美术楼广场', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (103, '安迪', '狗', '2026-04-11 10:10:00', '体育学院广场', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (104, '托尼', '狗', '2026-04-11 11:20:00', '校史馆广场', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (105, '杰克', '狗', '2026-04-11 12:50:00', '喷泉广场', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (106, '迈克', '狗', '2026-04-11 14:10:00', '东门广场', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (107, '吉姆', '狗', '2026-04-11 15:40:00', '西门广场', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (108, '汤姆', '狗', '2026-04-11 16:20:00', '中央广场', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (109, '杰瑞', '狗', '2026-04-11 17:10:00', '银杏大道中段', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (110, '西蒙', '狗', '2026-04-11 18:30:00', '樱花大道中段', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (111, '阿牧', '狗', '2026-04-12 08:10:00', '一教北侧小路', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (112, '阿柴', '狗', '2026-04-12 09:20:00', '二教南侧小路', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (113, '阿拉', '狗', '2026-04-12 10:30:00', '图书馆北侧', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (114, '斯加', '狗', '2026-04-12 11:10:00', '食堂北侧小路', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (115, '萨摩', '狗', '2026-04-12 12:40:00', '食堂南侧小路', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (116, '哈士奇', '狗', '2026-04-12 14:20:00', '操场北侧', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (117, '金毛', '狗', '2026-04-12 15:10:00', '操场南侧', 0, 'pending', NULL, NULL);
-INSERT INTO `animals` VALUES (118, '拉拉', '狗', '2026-04-12 16:40:00', '湖畔北侧', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (119, '柯基', '狗', '2026-04-12 17:25:00', '宿舍区主干道', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (120, '泰迪', '狗', '2026-04-12 18:15:00', '校园外环小路', 0, 'approved', NULL, NULL);
-INSERT INTO `animals` VALUES (150, '花花', '猫', '2026-05-22 00:00:00', '图书馆', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (2, '年糕', 'cat', 'cat_other', '2026-04-01 09:00:00', '二教走廊拐角', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (3, '团子', 'cat', 'cat_other', '2026-04-01 10:15:00', '图书馆北门', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (4, '泡芙', 'cat', 'cat_other', '2026-04-01 11:00:00', '食堂后门垃圾桶旁', 1, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (5, '麻薯', 'cat', 'cat_other', '2026-04-01 12:20:00', '三教自习室窗外', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (6, '布丁', 'cat', 'cat_other', '2026-04-01 14:00:00', '操场看台角落', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (7, '奶糖', 'cat', 'cat_other', '2026-04-01 15:10:00', '篮球场边树荫', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (8, '桃酥', 'cat', 'cat_other', '2026-04-01 16:30:00', '校园湖畔长椅下', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (9, '椰果', 'cat', 'cat_other', '2026-04-01 17:20:00', '留学生公寓门口', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (10, '雪饼', 'cat', 'cat_other', '2026-04-01 18:00:00', '研究生宿舍楼下', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (11, '咪咪', 'cat', 'cat_other', '2026-04-02 08:20:00', '实验楼门口', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (12, '花花', 'cat', 'cat_other', '2026-04-02 09:40:00', '人文楼台阶', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (13, '灰灰', 'cat', 'cat_other', '2026-04-02 10:50:00', '艺术楼走廊', 1, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (14, '朵朵', 'cat', 'cat_other', '2026-04-02 11:30:00', '校医院旁小路', 1, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (15, '萌萌', 'cat', 'cat_other', '2026-04-02 12:10:00', '大学生活动中心', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (16, '糯糯', 'cat', 'cat_other', '2026-04-02 14:15:00', '网球场围栏边', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (17, '软软', 'cat', 'cat_other', '2026-04-02 15:25:00', '排球场旁草坪', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (18, '绵绵', 'cat', 'cat_other', '2026-04-02 16:20:00', '校园超市门口', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (19, '豆豆', 'cat', 'cat_other', '2026-04-02 17:10:00', '快递站旁角落', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (20, '球球', 'cat', 'cat_other', '2026-04-02 18:30:00', '自行车棚内', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (21, '橘子', 'cat', 'cat_other', '2026-04-03 08:10:00', '四教楼梯口', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (22, '柚子', 'cat', 'cat_other', '2026-04-03 09:20:00', '五教教室后门', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (23, '栗子', 'cat', 'cat_other', '2026-04-03 10:30:00', '图书馆南侧草坪', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (24, '柿子', 'cat', 'cat_other', '2026-04-03 11:10:00', '食堂一楼门口', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (25, '蜜桃', 'cat', 'cat_other', '2026-04-03 12:40:00', '食堂二楼露台', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (26, '蓝莓', 'cat', 'cat_other', '2026-04-03 14:20:00', '操场西侧跑道', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (27, '草莓', 'cat', 'cat_other', '2026-04-03 15:10:00', '操场东侧入口', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (28, '葡萄', 'cat', 'cat_other', '2026-04-03 16:40:00', '湖心小亭子', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (29, '荔枝', 'cat', 'cat_other', '2026-04-03 17:25:00', '教师公寓门口', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (30, '芒果', 'cat', 'cat_other', '2026-04-03 18:15:00', '北门保安室旁', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (31, '煤球', 'cat', 'cat_other', '2026-04-04 08:00:00', '一教东侧楼梯', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (32, '牛奶', 'cat', 'cat_other', '2026-04-04 09:10:00', '二教西侧楼梯', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (33, '咖啡', 'cat', 'cat_other', '2026-04-04 10:20:00', '图书馆自习区外', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (34, '可乐', 'cat', 'cat_other', '2026-04-04 11:40:00', '校园便利店', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (35, '雪碧', 'cat', 'cat_other', '2026-04-04 12:25:00', '校园主干道树荫', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (36, '拿铁', 'cat', 'cat_other', '2026-04-04 14:30:00', '实训楼门口', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (37, '摩卡', 'cat', 'cat_other', '2026-04-04 15:20:00', '工程楼旁空地', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (38, '奶绿', 'cat', 'cat_other', '2026-04-04 16:10:00', '外语楼走廊', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (39, '红茶', 'cat', 'cat_other', '2026-04-04 17:30:00', '法学院门口', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (40, '绿茶', 'cat', 'cat_other', '2026-04-04 18:20:00', '商学院台阶', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (41, '小橘', 'cat', 'cat_other', '2026-04-05 08:20:00', '音乐楼门口', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (42, '小白', 'cat', 'cat_other', '2026-04-05 09:30:00', '美术楼门口', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (43, '小黑', 'cat', 'cat_other', '2026-04-05 10:10:00', '体育学院门口', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (44, '小灰', 'cat', 'cat_other', '2026-04-05 11:20:00', '校史馆旁', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (45, '小花', 'cat', 'cat_other', '2026-04-05 12:50:00', '校园喷泉旁', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (46, '元宝', 'cat', 'cat_other', '2026-04-05 14:10:00', '东门花坛', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (47, '富贵', 'cat', 'cat_other', '2026-04-05 15:40:00', '西门花坛', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (48, '平安', 'cat', 'cat_other', '2026-04-05 16:20:00', '中央草坪', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (49, '喜乐', 'cat', 'cat_other', '2026-04-05 17:10:00', '银杏大道', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (50, '团圆', 'cat', 'cat_other', '2026-04-05 18:30:00', '樱花大道', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (51, '年糕仔', 'cat', 'cat_other', '2026-04-06 08:10:00', '一教自习室', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (52, '泡芙崽', 'cat', 'cat_other', '2026-04-06 09:20:00', '二教自习室', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (53, '麻薯球', 'cat', 'cat_other', '2026-04-06 10:30:00', '图书馆负一楼', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (54, '布丁酱', 'cat', 'cat_other', '2026-04-06 11:10:00', '食堂早餐区外', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (55, '奶糖糕', 'cat', 'cat_other', '2026-04-06 12:40:00', '食堂晚餐区外', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (56, '桃酥酥', 'cat', 'cat_other', '2026-04-06 14:20:00', '操场主席台旁', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (57, '椰果果', 'cat', 'cat_other', '2026-04-06 15:10:00', '操场沙坑旁', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (58, '雪饼饼', 'cat', 'cat_other', '2026-04-06 16:40:00', '湖畔石凳', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (59, '小绒球', 'cat', 'cat_other', '2026-04-06 17:25:00', '宿舍区花园', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (60, '小毛团', 'cat', 'cat_other', '2026-04-06 18:15:00', '校园林荫小道', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (61, '旺财', 'dog', 'dog_other', '2026-04-07 08:30:00', '一教门口广场', 1, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (62, '来福', 'dog', 'dog_other', '2026-04-07 09:00:00', '二教门口广场', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (63, '阿黄', 'dog', 'dog_other', '2026-04-07 10:15:00', '图书馆广场', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (64, '小黑', 'dog', 'dog_other', '2026-04-07 11:00:00', '食堂前广场', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (65, '小白', 'dog', 'dog_other', '2026-04-07 12:20:00', '三教门口空地', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (66, '大黄', 'dog', 'dog_other', '2026-04-07 14:00:00', '操场入口处', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (67, '皮皮', 'dog', 'dog_other', '2026-04-07 15:10:00', '篮球场中央空地', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (68, '乐乐', 'dog', 'dog_other', '2026-04-07 16:30:00', '湖畔大草坪', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (69, '欢欢', 'dog', 'dog_other', '2026-04-07 17:20:00', '留学生公寓草坪', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (70, '豆豆', 'dog', 'dog_other', '2026-04-07 18:00:00', '研究生宿舍广场', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (71, '多多', 'dog', 'dog_other', '2026-04-08 08:20:00', '实验楼前空地', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (72, '贝贝', 'dog', 'dog_other', '2026-04-08 09:40:00', '人文楼广场', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (73, '妞妞', 'dog', 'dog_other', '2026-04-08 10:50:00', '艺术楼前草坪', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (74, '丫丫', 'dog', 'dog_other', '2026-04-08 11:30:00', '校医院前小路', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (75, '壮壮', 'dog', 'dog_other', '2026-04-08 12:10:00', '活动中心广场', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (76, '虎子', 'dog', 'dog_other', '2026-04-08 14:15:00', '网球场外空地', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (77, '豹子', 'dog', 'dog_other', '2026-04-08 15:25:00', '排球场外空地', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (78, '小龙', 'dog', 'dog_other', '2026-04-08 16:20:00', '超市前广场', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (79, '大熊', 'dog', 'dog_other', '2026-04-08 17:10:00', '快递站广场', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (80, '胖胖', 'dog', 'dog_other', '2026-04-08 18:30:00', '自行车棚外空地', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (81, '土豆', 'dog', 'dog_other', '2026-04-09 08:10:00', '四教门口', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (82, '地瓜', 'dog', 'dog_other', '2026-04-09 09:20:00', '五教门口', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (83, '萝卜', 'dog', 'dog_other', '2026-04-09 10:30:00', '图书馆东侧草坪', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (84, '白菜', 'dog', 'dog_other', '2026-04-09 11:10:00', '食堂侧门', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (85, '冬瓜', 'dog', 'dog_other', '2026-04-09 12:40:00', '食堂露台下方', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (86, '毛豆', 'dog', 'dog_other', '2026-04-09 14:20:00', '操场跑道内侧', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (87, '蚕豆', 'dog', 'dog_other', '2026-04-09 15:10:00', '操场观众席后', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (88, '豌豆', 'dog', 'dog_other', '2026-04-09 16:40:00', '湖心桥边', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (89, '花生', 'dog', 'dog_other', '2026-04-09 17:25:00', '教师公寓广场', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (90, '核桃', 'dog', 'dog_other', '2026-04-09 18:15:00', '北门广场', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (91, '巴顿', 'dog', 'dog_other', '2026-04-10 08:00:00', '一教西侧广场', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (92, '将军', 'dog', 'dog_other', '2026-04-10 09:10:00', '二教东侧广场', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (93, '雷霆', 'dog', 'dog_other', '2026-04-10 10:20:00', '图书馆后门', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (94, '旋风', 'dog', 'dog_other', '2026-04-10 11:40:00', '校园主干道中段', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (95, '疾风', 'dog', 'dog_other', '2026-04-10 12:25:00', '校园十字路口', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (96, '闪电', 'dog', 'dog_other', '2026-04-10 14:30:00', '实训楼广场', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (97, '雷神', 'dog', 'dog_other', '2026-04-10 15:20:00', '工程楼广场', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (98, '战神', 'dog', 'dog_other', '2026-04-10 16:10:00', '外语楼广场', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (99, '骑士', 'dog', 'dog_other', '2026-04-10 17:30:00', '法学院广场', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (100, '王子', 'dog', 'dog_other', '2026-04-10 18:20:00', '商学院广场', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (101, '哈利', 'dog', 'dog_other', '2026-04-11 08:20:00', '音乐楼广场', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (102, '波特', 'dog', 'dog_other', '2026-04-11 09:30:00', '美术楼广场', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (103, '安迪', 'dog', 'dog_other', '2026-04-11 10:10:00', '体育学院广场', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (104, '托尼', 'dog', 'dog_other', '2026-04-11 11:20:00', '校史馆广场', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (105, '杰克', 'dog', 'dog_other', '2026-04-11 12:50:00', '喷泉广场', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (106, '迈克', 'dog', 'dog_other', '2026-04-11 14:10:00', '东门广场', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (107, '吉姆', 'dog', 'dog_other', '2026-04-11 15:40:00', '西门广场', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (108, '汤姆', 'dog', 'dog_other', '2026-04-11 16:20:00', '中央广场', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (109, '杰瑞', 'dog', 'dog_other', '2026-04-11 17:10:00', '银杏大道中段', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (110, '西蒙', 'dog', 'dog_other', '2026-04-11 18:30:00', '樱花大道中段', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (111, '阿牧', 'dog', 'dog_other', '2026-04-12 08:10:00', '一教北侧小路', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (112, '阿柴', 'dog', 'dog_other', '2026-04-12 09:20:00', '二教南侧小路', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (113, '阿拉', 'dog', 'dog_other', '2026-04-12 10:30:00', '图书馆北侧', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (114, '斯加', 'dog', 'dog_other', '2026-04-12 11:10:00', '食堂北侧小路', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (115, '萨摩', 'dog', 'dog_other', '2026-04-12 12:40:00', '食堂南侧小路', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (116, '哈士奇', 'dog', 'dog_other', '2026-04-12 14:20:00', '操场北侧', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (117, '金毛', 'dog', 'dog_other', '2026-04-12 15:10:00', '操场南侧', 0, 'pending', NULL, NULL);
+INSERT INTO `animals` VALUES (118, '拉拉', 'dog', 'dog_other', '2026-04-12 16:40:00', '湖畔北侧', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (119, '柯基', 'dog', 'dog_other', '2026-04-12 17:25:00', '宿舍区主干道', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (120, '泰迪', 'dog', 'dog_other', '2026-04-12 18:15:00', '校园外环小路', 0, 'approved', NULL, NULL);
+INSERT INTO `animals` VALUES (150, '花花', 'cat', 'cat_other', '2026-05-22 00:00:00', '图书馆', 0, 'approved', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for banner
@@ -377,13 +380,56 @@ INSERT INTO `banner` VALUES ('7270dfaa-5f87-495c-844d-2c596c157c09', '/profile/u
 INSERT INTO `banner` VALUES ('bb6e86d8-694b-4775-86f6-322a4733e093', '/profile/upload/f0732d72240844b09259cdafcca5230b.png', 2);
 
 -- ----------------------------
+-- Table structure for breed
+-- ----------------------------
+DROP TABLE IF EXISTS `breed`;
+CREATE TABLE `breed`  (
+  `breed_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '品种ID',
+  `category_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '所属分类ID',
+  `code` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '品种编码',
+  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '品种名称',
+  `sort` int NOT NULL DEFAULT 0 COMMENT '排序',
+  `enabled` tinyint(1) NOT NULL DEFAULT 1 COMMENT '是否启用',
+  `is_default` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否为该分类兜底品种',
+  PRIMARY KEY (`breed_id`) USING BTREE,
+  UNIQUE INDEX `uk_breed_code`(`code` ASC) USING BTREE,
+  INDEX `idx_breed_category`(`category_id` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '猫狗品种字典' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of breed
+-- ----------------------------
+INSERT INTO `breed` VALUES ('cat_american_shorthair', 'cat', 'american_shorthair', '美短', 6, 1, 0);
+INSERT INTO `breed` VALUES ('cat_british_shorthair', 'cat', 'british_shorthair', '英短', 5, 1, 0);
+INSERT INTO `breed` VALUES ('cat_calico', 'cat', 'calico_cat', '三花猫', 3, 1, 0);
+INSERT INTO `breed` VALUES ('cat_chinese_domestic', 'cat', 'chinese_domestic_cat', '中华田园猫', 1, 1, 0);
+INSERT INTO `breed` VALUES ('cat_maine_coon', 'cat', 'maine_coon', '缅因猫', 9, 1, 0);
+INSERT INTO `breed` VALUES ('cat_orange', 'cat', 'orange_cat', '橘猫', 2, 1, 0);
+INSERT INTO `breed` VALUES ('cat_other', 'cat', 'other_cat', '其他猫', 99, 1, 1);
+INSERT INTO `breed` VALUES ('cat_ragdoll', 'cat', 'ragdoll', '布偶猫', 7, 1, 0);
+INSERT INTO `breed` VALUES ('cat_siamese', 'cat', 'siamese', '暹罗猫', 8, 1, 0);
+INSERT INTO `breed` VALUES ('cat_tabby', 'cat', 'tabby_cat', '狸花猫', 4, 1, 0);
+INSERT INTO `breed` VALUES ('dog_border_collie', 'dog', 'border_collie', '边牧', 8, 1, 0);
+INSERT INTO `breed` VALUES ('dog_chinese_rural', 'dog', 'chinese_rural_dog', '中华田园犬', 1, 1, 0);
+INSERT INTO `breed` VALUES ('dog_corgi', 'dog', 'corgi', '柯基', 5, 1, 0);
+INSERT INTO `breed` VALUES ('dog_german_shepherd', 'dog', 'german_shepherd', '德牧', 9, 1, 0);
+INSERT INTO `breed` VALUES ('dog_golden_retriever', 'dog', 'golden_retriever', '金毛', 2, 1, 0);
+INSERT INTO `breed` VALUES ('dog_husky', 'dog', 'husky', '哈士奇', 6, 1, 0);
+INSERT INTO `breed` VALUES ('dog_labrador', 'dog', 'labrador_retriever', '拉布拉多', 3, 1, 0);
+INSERT INTO `breed` VALUES ('dog_other', 'dog', 'other_dog', '其他狗', 99, 1, 1);
+INSERT INTO `breed` VALUES ('dog_poodle', 'dog', 'poodle', '泰迪/贵宾', 4, 1, 0);
+INSERT INTO `breed` VALUES ('dog_samoyed', 'dog', 'samoyed', '萨摩耶', 7, 1, 0);
+
+-- ----------------------------
 -- Table structure for category
 -- ----------------------------
 DROP TABLE IF EXISTS `category`;
 CREATE TABLE `category`  (
   `category_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '分类ID',
+  `code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '分类编码',
   `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '分类名称',
   `sort` int NOT NULL COMMENT '排序',
+  `enabled` tinyint(1) NOT NULL DEFAULT 1 COMMENT '是否启用',
   PRIMARY KEY (`category_id`) USING BTREE,
   UNIQUE INDEX `category_id`(`category_id` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '动物分类' ROW_FORMAT = DYNAMIC;
@@ -391,19 +437,8 @@ CREATE TABLE `category`  (
 -- ----------------------------
 -- Records of category
 -- ----------------------------
-INSERT INTO `category` VALUES ('6e2f55b0-ab1f-4b99-b4e9-5d6e48b0cb1f', '喵星人', 2);
-INSERT INTO `category` VALUES ('aaa', '汪星人', 1);
-INSERT INTO `category` VALUES ('cfdb60a3-9342-410e-94a9-dde88232672b', '汪星人', 1);
-INSERT INTO `category` VALUES ('d', 'acbdcs', 5);
-INSERT INTO `category` VALUES ('e', 'cadfbg', 6);
-INSERT INTO `category` VALUES ('f', 'avbgnhmhjh', 7);
-INSERT INTO `category` VALUES ('g', 'xvcbgfds', 8);
-INSERT INTO `category` VALUES ('h', 'cvbfde', 9);
-INSERT INTO `category` VALUES ('i', 'babhnstg', 10);
-INSERT INTO `category` VALUES ('j', 'dvvfss', 11);
-INSERT INTO `category` VALUES ('k', 'agfbgnh', 12);
-INSERT INTO `category` VALUES ('l', 'dvfbeaw', 13);
-INSERT INTO `category` VALUES ('m', 'bnhgfcx', 14);
+INSERT INTO `category` VALUES ('cat', 'cat', '猫', 1, 1);
+INSERT INTO `category` VALUES ('dog', 'dog', '狗', 2, 1);
 
 -- ----------------------------
 -- Table structure for sys_menu

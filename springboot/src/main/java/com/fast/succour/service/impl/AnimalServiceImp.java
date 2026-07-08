@@ -219,21 +219,16 @@ public class AnimalServiceImp implements AnimalService {
             return;
         }
 
-        boolean hasCategoryInput = hasText(animal.getCategoryId()) || hasText(animal.getSpecies());
+        boolean hasCategoryInput = hasText(animal.getCategoryId());
         boolean hasBreedInput = hasText(animal.getBreedId());
 
         if (!required && !hasCategoryInput && !hasBreedInput) {
             return;
         }
 
-        Category category = null;
-        if (hasText(animal.getCategoryId())) {
-            category = categoryMapper.selectCategoryByCategoryId(animal.getCategoryId());
-        } else if ("猫".equals(animal.getSpecies())) {
-            category = categoryMapper.selectCategoryByCode("cat");
-        } else if ("狗".equals(animal.getSpecies())) {
-            category = categoryMapper.selectCategoryByCode("dog");
-        }
+        Category category = hasCategoryInput
+                ? categoryMapper.selectCategoryByCategoryId(animal.getCategoryId())
+                : null;
 
         if (category == null || Boolean.FALSE.equals(category.getEnabled())) {
             if (required) {
@@ -246,7 +241,6 @@ public class AnimalServiceImp implements AnimalService {
         }
 
         animal.setCategoryId(category.getCategoryId());
-        animal.setSpecies(category.getName());
 
         Breed breed = null;
         if (hasText(animal.getBreedId())) {

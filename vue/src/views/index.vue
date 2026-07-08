@@ -128,6 +128,12 @@ const getData = async () => {
   renderChart();
 };
 
+const getCategoryCode = (item) => {
+  if (item.categoryId) return item.categoryId;
+  if (item.categoryCode) return item.categoryCode;
+  return item.categoryName === '猫' ? 'cat' : item.categoryName === '狗' ? 'dog' : '';
+};
+
 const countAll = (rows) => {
   adoptedCat.value = 0;
   adoptedDog.value = 0;
@@ -137,10 +143,11 @@ const countAll = (rows) => {
   rows.forEach(item => {
     // 统计猫狗领养状态
     const isAdopt = item.isAdopted === true;
-    if (item.species === "猫") {
+    const categoryCode = getCategoryCode(item);
+    if (categoryCode === 'cat') {
       isAdopt ? adoptedCat.value++ : unAdoptedCat.value++;
     }
-    if (item.species === "狗") {
+    if (categoryCode === 'dog') {
       isAdopt ? adoptedDog.value++ : unAdoptedDog.value++;
     }
   });
