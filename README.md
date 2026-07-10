@@ -1,83 +1,78 @@
 # CateAndDogSystem
 
-面向校园场景的流浪猫狗管理与领养个人项目。平台提供动物档案、图片识别辅助建档、领养申请与审核、领养记录、用户权限和运营内容管理等能力。
+校园流浪猫狗管理与领养个人项目。当前实现包括动物档案、图片识别辅助建档、领养申请与记录、轮播图、分类品种字典、用户角色和菜单管理。
 
-项目将图像识别拆分为猫狗目标检测、受控品种自动填充和个体相似度匹配三层：非猫狗图片在入口处拦截，猫狗档案使用标准化的类别和品种字典，匹配仅在同类别、同品种候选中进行。
+项目不包含线下人员调度、工单、处置记录或医疗档案等功能。
 
-## 项目组成
+## 目录
 
-| 目录 | 说明 |
+| 路径 | 当前职责 |
 | --- | --- |
-| `springboot/` | Spring Boot 后端，提供业务、认证、文件与识别转发接口 |
-| `vue/` | Vue 3 前端，含用户端和管理端 |
-| `photo_recognize/` | FastAPI 图像识别服务与批处理、验证脚本 |
-| `springboot/src/main/resources/static/uploads/images/` | 数据库引用的动物图片 |
-| `file/` | 运行期头像、轮播图等资源 |
-| `animal-succour.sql` | 数据库结构、分类字典、动物数据及特征向量基线 |
+| `springboot/` | Spring Boot 后端，动物、领养、分类、文件、登录和菜单接口 |
+| `vue/` | Vue 3 用户端与管理端 |
+| `photo_recognize/` | FastAPI 图像识别服务、重分类与特征验证脚本 |
+| `springboot/src/main/resources/static/uploads/images/` | 动物图片文件 |
+| `file/` | 头像、轮播图等运行期文件 |
+| `animal-succour.sql` | 数据库结构、数据、动态菜单路径和图片特征向量的导出基线 |
 
-## 核心能力
+## 已实现业务
 
-- 只支持猫、狗建档；未检测到猫狗的图片会直接拦截。
-- `category` 只维护 `cat`、`dog`；动物通过 `category_id`、`breed_id` 建档。
-- 品种为受控下拉选项，用户可以确认或修改，但不能自由输入；后端校验品种与类别的归属关系。
-- 上传图片经 YOLOv8n 检测后，以目标框外扩 15% 的裁剪图完成品种分类和 ResNet50 特征提取。
-- 匹配结果与类别、品种建议一并返回；最终入库值以用户确认的 `categoryId`、`breedId` 为准。
-- 覆盖动物档案、领养申请与审核、领养记录、用户角色菜单、轮播图和图片资源管理。
+- 动物档案：查询、统计、新增、修改、删除，支持类别、品种、发现时间、地点、介绍、审核状态和领养状态。
+- 分类字典：一级类别固定为猫和狗；品种字典按类别维护。
+- 图片识别：上传图片后检测猫/狗、给出品种建议、尝试匹配已有动物档案。
+- 领养：提交申请、查询、修改、删除、撤销；申请状态更新为“已完成”时写入领养记录并把动物标为已领养。
+- 运营与系统管理：轮播图、用户、角色、菜单和个人资料页面。
 
-## 图像识别流程
+## 图片识别的实际流程
 
 ```text
 上传图片
   -> Spring Boot 保存临时文件
-  -> GET /analyze_cat_dog_by_path
-  -> YOLOv8n 检测猫或狗
-       -> 未检测到：返回非猫狗，停止建档与匹配
-       -> 检测到：选择置信度最高的猫/狗候选
-  -> 检测框外扩 15%，裁剪主体
-  -> 品种分类并映射到系统字典
-  -> ResNet50 对裁剪图提取特征
-  -> 查询同 category + 同 breed 的 animal_images
-  -> 余弦相似度匹配，返回已有档案或新建档案建议
+  -> Python GET /analyze_cat_dog_by_path
+  -> YOLOv8n 定位目标，并同时判定猫或狗大类
+       -> 未找到达到阈值的猫/狗：返回非猫狗，停止匹配
+       -> 找到多个猫/狗候选：选择置信度最高的候选
+  -> 按检测框四周 15% 边距裁剪主体
+  -> 根据 YOLO 判定的大类进行品种分类
+       -> 猫：GCViT-Tiny
+       -> 狗：EfficientNet-B0 ImageNet 预训练模型
+  -> 将原始品种标签映射到系统品种，或映射为“其他猫/其他狗”
+  -> ResNet50 对裁剪图提取 2048 维、L2 归一化特征
+  -> 后端只查询相同 category_id 与 breed_id 的 animal_images
+  -> 计算余弦相似度，返回最佳匹配或新建档案建议
 ```
 
-当前品种字典：
+YOLO 的检测结果已经包含猫/狗大类；后续步骤识别的是品种，不会再次判定猫或狗。
 
-| 类别 | 支持选项 |
+当前支持字典：
+
+| 大类 | 品种选项 |
 | --- | --- |
-| 猫 | 英短、布偶、暹罗、缅因、其他猫 |
+| 猫 | 英短、布偶猫、暹罗猫、缅因猫、其他猫 |
 | 狗 | 金毛、拉布拉多、柯基、边牧、其他狗 |
 
-| 阈值 | 当前值 | 用途 |
+| 配置/常量 | 当前值 | 位置 |
 | --- | ---: | --- |
-| 猫狗检测 | `0.40` | YOLOv8n 猫狗候选的最低置信度 |
-| 猫品种 | `0.25` | 映射到支持猫品种的最低置信度 |
-| 狗品种 | `0.40` | 映射到支持狗品种的最低置信度 |
-| 个体匹配 | `0.90` | 判定已有档案的最低余弦相似度 |
+| 猫狗检测阈值 | `0.40` | `photo_recognize/main.py` |
+| 猫品种阈值 | `0.25` | `photo_recognize/main.py` |
+| 狗品种阈值 | `0.40` | `photo_recognize/main.py` |
+| 裁剪边距 | `15%` | `photo_recognize/main.py` |
+| 匹配阈值 | `0.90` | `springboot/src/main/resources/application.yml` |
 
-建议上传仅包含一只、主体清晰且相对正面的猫狗照片。复杂背景、遮挡、逆光、低清晰度和多目标画面会降低识别稳定性。
+识别结果用于预填类别和品种。用户可以在下拉框中修改；新增或修改动物时，后端只校验提交的 `breedId` 是否属于提交的 `categoryId`，最终入库以表单值为准。
 
-## 环境要求
-
-- JDK 17
-- Maven 3.9+
-- Node.js 18 LTS 或更高版本
-- MySQL 8.0
-- Python 3.10 至 3.12
-
-## 快速启动
+## 本地启动
 
 ### 1. 初始化数据库
-
-创建数据库后，导入根目录中的最新 SQL：
 
 ```powershell
 mysql -u root -p -e "CREATE DATABASE `animal-succour` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci"
 mysql -u root -p animal-succour < animal-succour.sql
 ```
 
-数据库连接配置位于 [application-druid.yml](/F:/CateAndDogSystem/springboot/src/main/resources/application-druid.yml)。请按本机 MySQL 修改数据库名、用户名和密码。若 MySQL 不支持 `utf8mb4_0900_ai_ci`，可在导入前将其替换为 `utf8mb4_general_ci`。
+数据库连接配置在 [application-druid.yml](/F:/CateAndDogSystem/springboot/src/main/resources/application-druid.yml)。如果本机 MySQL 不支持 `utf8mb4_0900_ai_ci`，导入前可替换为 `utf8mb4_general_ci`。
 
-### 2. 启动 Python 图像识别服务
+### 2. 启动识别服务
 
 ```powershell
 cd photo_recognize
@@ -87,11 +82,11 @@ pip install -r requirement.txt
 python -m uvicorn main:app --host 127.0.0.1 --port 8000
 ```
 
-服务启动时会加载 YOLOv8n、GCViT-Tiny 猫品种模型、EfficientNet-B0 狗品种模型和 ResNet50 特征提取模型。首次运行可能下载模型权重；模型缓存不应提交到 Git。
+服务监听 `127.0.0.1:8000`。首次运行时，YOLO、torchvision 预训练权重和猫品种模型可能需要下载；本地模型缓存与虚拟环境不应提交。
 
 ### 3. 启动后端
 
-在项目根目录执行，确保路径解析一致：
+在仓库根目录执行：
 
 ```powershell
 $env:JAVA_HOME = 'D:\jdk-17'
@@ -99,15 +94,15 @@ $env:Path = "$env:JAVA_HOME\bin;$env:Path"
 mvn -f springboot\pom.xml spring-boot:run
 ```
 
-后端默认监听 `http://localhost:8080`，Python 服务默认由后端通过 `http://localhost:8000` 调用。
-
-编译验证：
+编译检查：
 
 ```powershell
 $env:JAVA_HOME = 'D:\jdk-17'
 $env:Path = "$env:JAVA_HOME\bin;$env:Path"
 mvn -f springboot\pom.xml -DskipTests compile
 ```
+
+后端默认监听 `0.0.0.0:8080`，并通过 `http://localhost:8000` 调用 Python 服务。
 
 ### 4. 启动前端
 
@@ -117,29 +112,22 @@ npm install
 npm run dev
 ```
 
-开发环境默认地址：`http://localhost:90`。
+开发地址默认是 `http://localhost:90`。
 
-## 数据与图片基线
+## 数据与文件约定
 
-`animal-succour.sql` 是数据库结构与演示数据的唯一基线，不维护迁移脚本。当前 SQL 包含标准化的分类和品种字典、动物档案、`animal_images` 中的裁剪图特征向量，以及与数据库一致的图片路径。
+- 数据库结构和数据以重新导出的 `animal-succour.sql` 为准；仓库不维护数据库迁移脚本。
+- `animal_images.image_url` 使用 `/uploads/images/...`，对应文件放在 `springboot/src/main/resources/static/uploads/images/`。
+- 头像和轮播图使用 `/profile/...`，对应文件放在根目录 `file/`。
+- 重导 SQL 或清理图片时，应核对 SQL 中的 `animal_images.image_url`、本地动物图片目录和 Git 跟踪文件是否一致。
+- 不提交虚拟环境、模型缓存、临时裁剪图、开发日志、个人材料和 IDE 配置。
 
-动物图片位于 `springboot/src/main/resources/static/uploads/images/`。提交或清理图片前，请确保该目录与 SQL 中 `animal_images.image_url` 的引用集合一致，避免出现数据库引用缺图或无引用孤立图。
+## 当前实现边界
 
-## 局域网访问
+- 模型未针对校园流浪猫狗数据微调，遮挡、复杂背景、姿态变化和低清晰度会影响结果。
+- 狗品种分类使用 ImageNet 通用标签；不在当前字典中的结果会归为“其他狗”。
+- 当前匹配策略把品种作为候选过滤条件，品种误判会缩小候选集。
+- `AnimalServiceImp` 在通过已有 `imageUrl` 建档但特征提取失败时，会写入 512 维零向量；正常 ResNet50 特征为 2048 维。这是当前代码的兜底行为，不应当作有效识别结果。
+- Spring Security 当前放行 `/api/**`，前端路由守卫不能替代后端接口授权。
 
-后端监听 `0.0.0.0:8080`，Vite 开发服务器默认使用端口 `90`。让部署电脑和访问设备加入同一局域网后，访问：
-
-```text
-http://部署电脑IPv4:90
-```
-
-确认 Windows 防火墙允许 `90` 和 `8080` 入站。Python 服务默认只供同机后端调用，无需对局域网开放 `8000`。
-
-## 当前边界
-
-- 模型未使用校园流浪猫狗样本微调，对遮挡、姿态变化和低清晰度场景的识别能力有限。
-- 狗品种分类使用 ImageNet 通用模型，不在支持字典内的高置信度标签仍会归入“其他狗”。
-- 校园常见猫的毛色/花纹描述与国际血统品种并不完全对应；品种结果是受控的自动填充建议，用户确认始终优先。
-- 当前多数动物仅有一张图片，尚不具备跨视角个体识别准确率的统计基础。
-
-详细架构、接口、数据模型、运维与验证说明见 [PROJECT_DOCUMENTATION.md](/F:/CateAndDogSystem/PROJECT_DOCUMENTATION.md)。
+详细实现说明见 [PROJECT_DOCUMENTATION.md](/F:/CateAndDogSystem/PROJECT_DOCUMENTATION.md)。

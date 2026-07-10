@@ -1,280 +1,280 @@
 # CateAndDogSystem 项目文档
 
-> 项目定位：持续维护的个人项目，用于校园流浪猫狗信息建档、图片识别辅助和领养管理。
->
-> 文档基线：2026-07-10，依据当前仓库源码、配置、`animal-succour.sql`、静态图片目录和图像识别服务整理。
+> 文档基线：当前 `main` 分支源码、配置文件和 `animal-succour.sql`。本文只描述仓库中可直接核对的实现，不把规划或推测写为已实现功能。
 
-## 1. 项目概览
+## 1. 项目范围
 
-CateAndDogSystem 是一个前后端分离的校园流浪猫狗管理与领养平台。它将动物信息管理、领养申请和审核、图片资源管理、用户权限管理与图像识别辅助录入结合在同一套业务流程中。
+CateAndDogSystem 是前后端分离的校园流浪猫狗管理与领养项目。
 
-平台的图像识别不承担无条件的自动决策，而是服务于可靠建档：先阻止非猫狗图片进入流程，再以模型结果预填受控类别和品种，最后由用户在限定选项内确认。个体相似度匹配用于发现可能已建档的动物，不能替代人工核验。
+当前业务模块：
 
-### 1.1 目标用户与功能
+- 动物档案及其图片特征。
+- 猫狗图片识别辅助建档与已有档案匹配。
+- 领养申请、审核状态修改、撤销和领养记录。
+- 轮播图、用户、角色、菜单和个人资料。
 
-| 角色 | 主要能力 |
-| --- | --- |
-| 普通用户 | 注册登录、浏览动物档案、通过图片识别查找或建档、提交和撤销领养申请、维护个人资料 |
-| 管理员 | 管理动物档案、审核申请、查看领养记录、维护轮播图、分类字典、用户、角色和菜单 |
+当前代码中没有线下人员调度、工单、处置记录、医疗档案或其他线下服务模块。
 
-当前业务边界聚焦动物档案与领养闭环；系统不包含线下人员调度、工单、处置记录、医疗档案或其他线下服务功能。
-
-## 2. 系统架构
-
-```text
-浏览器
-  |
-  v
-Vue 3 + Vite (开发端口 90)
-  |
-  v
-Spring Boot 3 (0.0.0.0:8080)
-  |                  |
-  | MyBatis           | HTTP
-  v                  v
-MySQL 8          FastAPI (127.0.0.1:8000)
-                     |
-                     +-- YOLOv8n 猫狗检测与主体框
-                     +-- GCViT-Tiny 猫品种分类
-                     +-- EfficientNet-B0 狗品种分类
-                     +-- ResNet50 裁剪图特征提取
-```
-
-| 层级 | 技术 | 责任 |
-| --- | --- | --- |
-| 前端 | Vue 3、Vite、Pinia、Element Plus、Axios | 用户端、管理端、受控表单和识别结果展示 |
-| 后端 | Java 17、Spring Boot 3、Spring Security、JWT、MyBatis、Druid | 业务规则、权限、文件、相似度计算、Python 服务编排 |
-| 识别服务 | FastAPI、PyTorch、torchvision、timm、Ultralytics | 猫狗检测、裁剪、品种映射、特征提取 |
-| 数据 | MySQL 8 | 动物、图片特征、领养业务、权限和运营数据 |
-
-## 3. 仓库结构
+## 2. 工程结构
 
 ```text
 CateAndDogSystem/
-├─ springboot/                         Spring Boot 后端
-│  └─ src/main/
-│     ├─ java/com/fast/animal/          动物、领养、分类、识别业务
-│     ├─ java/com/fast/system/          登录、权限、用户、角色、菜单
-│     └─ resources/                     配置、Mapper、静态上传图片
-├─ vue/                                Vue 前端
-│  └─ src/                             API、路由、状态、页面和布局
-├─ photo_recognize/                    FastAPI 服务与批处理脚本
-│  ├─ main.py                          聚合识别与特征提取接口
-│  ├─ reclassify_animals.py            全量重新分类和特征重建
-│  └─ verify_cropped_similarity.py     裁剪图特征写入验证
-├─ file/                               运行期头像、轮播图等资源
-├─ animal-succour.sql                  数据库与特征数据基线
-├─ README.md                           快速启动说明
-└─ PROJECT_DOCUMENTATION.md            本文档
+├─ springboot/
+│  ├─ src/main/java/com/fast/animal/     动物、领养、识别、分类和文件模块
+│  ├─ src/main/java/com/fast/system/     登录、JWT、用户、角色、菜单和通用模块
+│  └─ src/main/resources/
+│     ├─ application.yml                 服务、文件和匹配阈值配置
+│     ├─ application-druid.yml           MySQL 数据源配置
+│     ├─ mapper/animal/                  动物业务 Mapper XML
+│     └─ static/uploads/images/          动物图片目录
+├─ vue/src/
+│  ├─ api/animal/                        动物、领养、轮播、类别、品种 API 封装
+│  ├─ views/animal/                      管理端业务页面
+│  ├─ views/userPage/                    用户端页面
+│  ├─ store/                             Pinia 用户与动态路由状态
+│  └─ permission.js                      登录态恢复和路由守卫
+├─ photo_recognize/
+│  ├─ main.py                            FastAPI 聚合分析与特征提取接口
+│  ├─ reclassify_animals.py              全量重新分类与特征更新脚本
+│  └─ verify_cropped_similarity.py       裁剪图特征验证脚本
+├─ file/                                 头像和轮播图等运行期文件
+├─ animal-succour.sql                    数据库导出基线
+├─ README.md
+└─ PROJECT_DOCUMENTATION.md
 ```
 
-## 4. 关键业务规则
+## 3. 技术与进程关系
 
-### 4.1 分类标准化
-
-系统只支持猫、狗建档：
-
-- `category` 只维护 `cat`、`dog` 两条启用记录。
-- `breed` 维护受控字典；每个品种属于一个类别，且每个类别都有默认“其他”品种。
-- `animals` 使用 `category_id` 和 `breed_id` 保存分类结果，不再依赖自由文本 `species`。
-- 新增或修改档案时，后端验证 `breed.category_id = animals.category_id`。
-- 模型识别只提供表单默认值，用户可修改；入库以用户确认后的 `categoryId`、`breedId` 为准。
-
-当前字典：
-
-| `category_id` | `breed_id` 与显示名 |
-| --- | --- |
-| `cat` | `cat_british_shorthair` 英短、`cat_ragdoll` 布偶猫、`cat_siamese` 暹罗猫、`cat_maine_coon` 缅因猫、`cat_other` 其他猫 |
-| `dog` | `dog_golden_retriever` 金毛、`dog_labrador` 拉布拉多、`dog_corgi` 柯基、`dog_border_collie` 边牧、`dog_other` 其他狗 |
-
-### 4.2 图片识别与建档
+| 层 | 当前实现 | 职责 |
+| --- | --- | --- |
+| 前端 | Vue 3、Vite、Pinia、Element Plus、Axios | 用户端、管理端、受控表单、登录态与接口调用 |
+| 后端 | Java 17、Spring Boot 3、Spring Security、MyBatis、Druid | 业务处理、数据校验、文件、相似度计算、Python 调用 |
+| 识别服务 | FastAPI、PyTorch、torchvision、timm、Ultralytics | 检测、裁剪、品种映射、特征提取 |
+| 数据库 | MySQL | 业务数据、菜单、角色、图片路径与特征向量 |
 
 ```text
-用户上传图片
-  -> 后端保存临时文件
-  -> Python /analyze_cat_dog_by_path
-  -> YOLOv8n 检测猫狗候选
-       -> 没有达阈值的猫狗：返回 non_cat_dog，流程结束
-       -> 多个候选：选择置信度最高的猫或狗
-  -> 检测框外扩 15%，裁剪主体
-  -> 猫或狗品种分类，映射到受控字典或“其他”
-  -> ResNet50 对裁剪图生成归一化特征
-  -> 后端按 category_id + breed_id 查询 animal_images
-  -> 计算余弦相似度，返回档案匹配或新建建议
+浏览器
+  -> Vue 开发服务（默认 90）
+  -> Spring Boot（默认 8080）
+       -> MySQL
+       -> FastAPI（默认 localhost:8000）
 ```
 
-`RecognitionServiceImp` 会删除识别过程的临时原图与裁剪图；`AnimalServiceImp` 新增档案时也使用裁剪图生成入库特征，保证建档与查询处于同一特征空间。
+后端配置的监听地址是 `0.0.0.0:8080`；Python 服务地址目前写在 `PythonServiceImp` 中，为 `http://localhost:8000`。
 
-### 4.3 模型与阈值
+## 4. 分类与动物档案
 
-| 项目 | 当前实现 |
+### 4.1 数据模型
+
+导出 SQL 当前创建以下表：
+
+| 表 | 用途 |
 | --- | --- |
-| 猫狗检测 | YOLOv8n，阈值 `0.40` |
-| 主体裁剪 | 检测框四周增加 `15%` 边距 |
-| 猫品种 | GCViT-Tiny，阈值 `0.25` |
-| 狗品种 | EfficientNet-B0 ImageNet 预训练模型，阈值 `0.40` |
-| 个体特征 | ResNet50 ImageNet 预训练模型，输出 L2 归一化 2048 维向量 |
-| 匹配阈值 | `recognition.match-threshold=0.90` |
-
-猫模型支持标签映射到英短、布偶、暹罗和缅因；狗模型映射到金毛、拉布拉多、柯基和边牧。低置信度或不在支持列表内的结果进入“其他猫”或“其他狗”。
-
-## 5. 核心数据模型
-
-`animal-succour.sql` 是当前数据库结构和初始数据的唯一基线，不单独维护数据库迁移脚本。
-
-| 表 | 作用 |
-| --- | --- |
-| `animals` | 动物档案，包含类别、品种、发现时间、地点、审核和领养状态 |
-| `animal_images` | 动物图片 URL 与 `feature_vector` 二进制特征向量 |
-| `category` | 猫狗一级分类字典 |
-| `breed` | 受控品种字典，关联 `category_id` |
+| `animals` | 动物档案与审核、领养状态 |
+| `animal_images` | 图片访问路径与特征向量 |
+| `category` | 一级类别字典 |
+| `breed` | 品种字典 |
 | `adopt` | 领养申请 |
-| `adoption_record` | 已完成领养的归档记录 |
-| `banner` | 首页轮播图 |
-| `sys_user`、`sys_role`、`sys_menu` 等 | 登录、角色和菜单权限 |
+| `adoption_record` | 已完成领养的记录 |
+| `banner` | 轮播图 |
+| `sys_user`、`sys_role`、`sys_menu`、`sys_user_role`、`sys_role_menu` | 用户、角色与菜单 |
 
-### 5.1 图片和特征
+`animals` 使用 `category_id`、`breed_id`。`category` 当前只导出 `cat`、`dog`；`breed` 当前有 10 条启用字典记录：
 
-- 动物图片路径写入 `animal_images.image_url`，示例：`/uploads/images/002.jpg`。
-- 对应文件位于 `springboot/src/main/resources/static/uploads/images/`。
-- 特征向量以 little-endian `float32` 序列化为 MySQL `blob`；Java 侧用 `VectorUtil` 还原并计算余弦相似度。
-- 每次重导 SQL 时，应同步提交 SQL 中实际引用的图片。数据库引用与本地文件集合必须一致。
+| 类别 | 品种代码和名称 |
+| --- | --- |
+| `cat` | `british_shorthair` 英短、`ragdoll` 布偶猫、`siamese` 暹罗猫、`maine_coon` 缅因猫、`other_cat` 其他猫 |
+| `dog` | `golden_retriever` 金毛、`labrador_retriever` 拉布拉多、`corgi` 柯基、`border_collie` 边牧、`other_dog` 其他狗 |
 
-### 5.2 运行期文件
+### 4.2 表单校验与最终入库值
 
-| 类型 | 数据库存储路径 | 物理目录 |
+`AnimalServiceImp.normalizeCategoryAndBreed` 在新增和修改时执行以下规则：
+
+1. 查询提交的 `categoryId`，要求类别存在且启用。
+2. 查询提交的 `breedId`，要求品种存在且启用。
+3. 要求品种的 `category_id` 等于提交类别的 `category_id`。
+4. 未提交品种时，采用该类别的默认品种。
+
+模型分析结果不覆盖表单提交的类别和品种。用户端新建弹窗会把识别结果中的 `categoryId`、`breedId` 作为初始选择；用户修改后，以最终提交值建档。
+
+### 4.3 图片与特征保存
+
+- 动物图片 URL 保存在 `animal_images.image_url`，访问形式为 `/uploads/images/...`。
+- 图片物理目录由 `file.image-path` 配置，当前为 `springboot/src/main/resources/static/uploads/images`。
+- 动物列表与详情通过 `animals` 左连接 `animal_images`、`category`、`breed` 查询显示字段。
+- 新增时，后端会对上传文件或已有图片路径调用 Python 服务生成特征，再以 little-endian `float32` 序列化后写入 `animal_images.feature_vector`。
+- 修改动物图片 URL 时，当前代码只更新 `animal_images.image_url`；不会重新计算该图片的特征向量。
+- 删除动物时，代码尝试删除该动物当前图片文件，再删除 `animal_images` 和 `animals` 记录。
+
+当已有 `imageUrl` 的特征提取失败时，`AnimalServiceImp` 会继续使用 512 维零向量写入。正常在线特征为 2048 维；该兜底向量会影响后续相似度计算，应作为当前实现限制看待。
+
+## 5. 图片识别
+
+### 5.1 Python 接口
+
+| 方法 | 接口 | 返回职责 |
 | --- | --- | --- |
-| 动物图片 | `/uploads/images/...` | `springboot/src/main/resources/static/uploads/images/` |
-| 用户头像 | `/profile/avatar/...` | `file/avatar/...` |
-| 轮播图 | `/profile/upload/...` | `file/upload/...` |
+| `GET` | `/analyze_cat_dog_by_path?path=...` | 猫狗检测、裁剪、品种分类和标签映射 |
+| `GET` | `/extract_by_path?path=...` | ResNet50 特征向量 |
 
-后端将 `/uploads/**` 与 `/profile/**` 映射到相应目录。更换电脑部署时，数据库、动物图片与 `file/` 目录应一并迁移。
+`/analyze_cat_dog_by_path` 的关键返回字段包括：`isCatDog`、`categoryCode`、`categoryName`、`categoryConfidence`、`breedCode`、`breedName`、`breedConfidence`、`rawDetectLabel`、`rawBreedLabel`、`cropPath` 和 `cropBox`。未检测到猫狗时，返回 `isCatDog=false`、`categoryCode=non_cat_dog` 与提示信息。
 
-## 6. 服务接口
+### 5.2 检测、类别和品种
 
-### 6.1 Python 服务
+`main.py` 使用 YOLOv8n 遍历检测结果，只考虑标签为 `cat` 或 `dog` 且置信度不低于 `0.40` 的候选。若存在多个符合条件的候选，选择置信度最高者。
 
-| 方法 | 路径 | 用途 |
-| --- | --- | --- |
-| `GET` | `/analyze_cat_dog_by_path?path=...` | 检测、裁剪、品种分类的聚合分析 |
-| `GET` | `/extract_by_path?path=...` | 基于指定图片生成 ResNet50 特征 |
+这里的 YOLO 标签就是猫/狗大类：
 
-聚合分析成功时返回类别、品种、置信度、原始标签、Top 5 品种候选与裁剪路径；非猫狗时返回 `isCatDog=false` 和可直接展示的提示。
-
-### 6.2 后端业务接口
-
-常用入口包括：
-
-| 方法 | 路径 | 用途 |
-| --- | --- | --- |
-| `POST` | `/api/recognition/identify` | 上传图片并查询匹配档案或建档建议 |
-| `GET` | `/api/animals/list` | 动物列表与筛选 |
-| `GET` | `/api/animals/{id}` | 动物详情 |
-| `POST` | `/api/animals/add` | 新增动物档案 |
-| `PUT` | `/api/animals` | 修改动物档案 |
-| `GET` | `/api/animals/stats` | 首页动物统计 |
-| `POST` | `/api/adoptions` | 提交领养申请 |
-
-类别与品种字典由 `/api/categories`、`/api/breeds` 相关接口维护。前端以受控下拉框使用这些字典。
-
-## 7. 本地运行
-
-### 7.1 前置条件
-
-- JDK 17、Maven 3.9+
-- Node.js 18 LTS 或更高版本
-- Python 3.10 至 3.12
-- MySQL 8.0
-
-### 7.2 初始化数据库
-
-```powershell
-mysql -u root -p -e "CREATE DATABASE `animal-succour` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci"
-mysql -u root -p animal-succour < animal-succour.sql
+```text
+YOLOv8n 检测目标并判定 cat 或 dog
+  -> cat：使用 GCViT-Tiny 猫品种模型
+  -> dog：使用 EfficientNet-B0 狗品种模型
 ```
 
-连接参数在 [application-druid.yml](/F:/CateAndDogSystem/springboot/src/main/resources/application-druid.yml) 中。请勿将个人或生产环境凭据提交到仓库。
+因此“检测猫狗”之后的分类是品种分类，不是第二次猫狗类别分类。
 
-### 7.3 启动识别服务
+猫品种候选标签映射到英短、布偶、暹罗、缅因；狗品种候选标签映射到金毛、拉布拉多、柯基、边牧。猫品种阈值为 `0.25`，狗品种阈值为 `0.40`。候选为空、置信度不足或不在映射表中时，分别使用 `other_cat`、`other_dog`。
+
+### 5.3 裁剪与特征
+
+检测成功后，代码以检测框宽高的 `15%` 作为四周边距，并在图像边界内裁剪主体。品种分类和 ResNet50 特征提取都使用这张裁剪图。
+
+ResNet50 去掉最后分类层，输出特征后执行 L2 归一化，并以 `float32` 返回。识别服务与建档服务都会清理本次生成的临时裁剪图。
+
+### 5.4 后端匹配
+
+`POST /api/recognition/identify` 的后端流程：
+
+```text
+接收 MultipartFile
+  -> 保存到 file.temp-path
+  -> 调用 analyze_cat_dog_by_path
+  -> 非猫狗：返回 matched=false 和提示
+  -> 根据 categoryCode 查询 category
+  -> 根据 categoryId + breedCode 查询 breed，失败时使用该类别默认 breed
+  -> 对 cropPath 调用 extract_by_path
+  -> 查询相同 category_id 和 breed_id 的 animal_images
+  -> 对每个候选向量计算余弦相似度
+  -> 最大值大于 recognition.match-threshold 时返回 matched=true 与动物档案
+  -> 否则返回 matched=false，并返回字典解析后的类别和品种
+  -> 删除临时原图和裁剪图
+```
+
+当前 `recognition.match-threshold` 为 `0.90`。匹配候选明确按类别和品种双重过滤；品种分类错误会导致真实同一动物不在候选集中。
+
+## 6. 领养实现
+
+### 6.1 申请与撤销
+
+`POST /api/adoptions` 创建申请时会：
+
+1. 生成去掉连字符的 UUID 作为 `adopt_id`。
+2. 从当前登录用户取得 `user_id`。
+3. 把动物的 `status` 更新为字符串“审核中”。
+4. 插入 `adopt` 记录。
+
+`PUT /api/adoptions/revoke/{adoptId}` 只允许撤销状态为“审核中”的申请。撤销时把动物 `is_adopted` 设为 `false`，然后删除申请记录；当前实现不会恢复动物的 `status`。
+
+### 6.2 完成申请
+
+`PUT /api/adoptions` 在提交状态为“已完成”时，会查询完整申请，设置动物 `is_adopted=true`，并写入一条 `adoption_record`。当前代码没有在写入前检查是否已存在相同申请的领养记录。
+
+## 7. 登录、角色与路由
+
+### 7.1 登录态
+
+- `POST /login` 返回 JWT Token。
+- `GET /getInfo` 返回 `user`、`roles` 和 `permissions`。
+- 前端把角色对象转换为 `roleKey`，若 `roleKey` 为空则使用 `roleName`。
+- `permission.js` 在刷新页面后发现 Token 但 Pinia 角色为空时，先请求 `/getInfo` 和 `/getRouters`，再添加动态路由。
+
+当前角色跳转规则：角色数组包含 `admin` 时默认进入 `/index`；其他角色默认进入 `/user/home`。普通用户访问 `/` 或 `/index` 时，路由守卫会跳转到 `/user/home`。
+
+### 7.2 当前授权范围
+
+`SecurityConfig` 当前放行 `/api/**`、`/uploads/**`、`/profile/**`、`/druid/**`、登录和注册等路径。前端对用户端和管理端页面有路由守卫，但后端没有对 `/api/**` 按角色限制访问。
+
+这表示当前“管理员页面”与“管理员接口”不是同一层级的访问控制；前端跳转规则不构成后端授权。
+
+## 8. HTTP 接口清单
+
+### 8.1 动物与识别
+
+| 方法 | 路径 |
+| --- | --- |
+| `GET` | `/api/animals/list` |
+| `GET` | `/api/animals/stats` |
+| `GET` | `/api/animals/{id}` |
+| `POST` | `/api/animals/add` |
+| `PUT` | `/api/animals` |
+| `DELETE` | `/api/animals/{animalIds}` |
+| `POST` | `/api/recognition/identify` |
+| `POST` | `/api/common/upload` |
+
+### 8.2 领养、轮播和字典
+
+| 资源 | 路径前缀 | 已实现方法 |
+| --- | --- | --- |
+| 领养申请 | `/api/adoptions` | 列表、详情、新增、修改、删除、撤销、领养记录查询 |
+| 轮播图 | `/api/banners` | 列表、详情、新增、修改、删除 |
+| 品种 | `/api/breeds` | 列表、详情、新增、修改、删除 |
+| 类别 | `/api/categories` | 列表、详情、新增、修改、删除 |
+
+`CategoryServiceImpl` 会拒绝新增一级类别，且不允许停用或删除 `cat`、`dog`。
+
+## 9. 运行与部署
+
+### 9.1 环境
+
+| 组件 | 当前要求或配置 |
+| --- | --- |
+| Java | JDK 17 |
+| Maven | 用于后端构建 |
+| Node.js | 用于 Vue 开发与构建 |
+| Python | 安装 `photo_recognize/requirement.txt` |
+| MySQL | 配置默认指向 `localhost:3306/animal-succour` |
+
+### 9.2 命令
 
 ```powershell
+# Python
 cd photo_recognize
-python -m venv venv
-.\venv\Scripts\activate
-pip install -r requirement.txt
 python -m uvicorn main:app --host 127.0.0.1 --port 8000
-```
 
-### 7.4 启动后端
-
-```powershell
+# Spring Boot（在仓库根目录）
 $env:JAVA_HOME = 'D:\jdk-17'
 $env:Path = "$env:JAVA_HOME\bin;$env:Path"
 mvn -f springboot\pom.xml spring-boot:run
-```
 
-编译检查：
-
-```powershell
-$env:JAVA_HOME = 'D:\jdk-17'
-$env:Path = "$env:JAVA_HOME\bin;$env:Path"
-mvn -f springboot\pom.xml -DskipTests compile
-```
-
-### 7.5 启动前端
-
-```powershell
+# Vue
 cd vue
 npm install
 npm run dev
 ```
 
-访问 `http://localhost:90`。后端默认端口是 `8080`，Python 服务默认端口是 `8000`。
+前端开发服务器默认端口为 `90`。局域网访问时，后端监听 `0.0.0.0:8080`；Vite 代理把前端请求转发到后端。Python 服务默认只给同机后端调用。
 
-## 8. 局域网与构建
-
-后端已监听 `0.0.0.0`，Vite 开发服务器启用局域网访问。将服务电脑和访问设备加入同一网络后，可通过 `http://部署电脑IPv4:90` 访问前端。Windows 防火墙需允许端口 `90`、`8080`；Python 服务仅供后端本机调用时，无需开放 `8000`。
-
-前端构建：
+前端生产构建：
 
 ```powershell
 cd vue
 npm run build:prod
 ```
 
-如需把构建产物部署给其他设备，将 `vue/.env.production` 中的 `VITE_APP_BASE_API` 设置为后端可访问地址，而不是 `localhost`。
+## 10. 数据维护脚本
 
-## 9. 数据维护与验证
+### 10.1 `reclassify_animals.py`
 
-### 9.1 全量重新分类
+该脚本读取数据库中的动物图片，调用 `analyze_cat_dog` 和 `extract_feature`，并更新动物类别、品种和图片特征。执行后需要重新导出 `animal-succour.sql`，同时核对动物图片目录。
 
-`photo_recognize/reclassify_animals.py` 会读取现有动物图片，执行检测、裁剪、类别与品种映射，并更新 `animals.category_id`、`animals.breed_id` 及 `animal_images.feature_vector`。完成后重新导出 `animal-succour.sql`，使数据库基线与代码保持一致。
+### 10.2 `verify_cropped_similarity.py`
 
-### 9.2 裁剪图特征验证
+该脚本重新生成裁剪图特征并与数据库中的向量比较，也会按类别和品种分组计算候选相似度。它验证的是裁剪图特征是否与数据库向量一致，不是跨图片个体识别准确率评测。
 
-`photo_recognize/verify_cropped_similarity.py` 会重新生成裁剪图特征，并与数据库中的向量比较。它用于确认特征是否按裁剪图正确写入数据库，不等同于跨图片个体识别准确率评估。
+## 11. 数据与提交约定
 
-### 9.3 图片集合校验
-
-每次更新 SQL 或图片后，核对以下三者：
-
-1. `animal_images.image_url` 的数据库引用。
-2. `springboot/src/main/resources/static/uploads/images/` 的本地文件。
-3. Git 跟踪的上传图片。
-
-三者应保持一一对应。开发日志、模型缓存、临时裁剪图、个人材料和本地 IDE 配置不应提交。
-
-## 10. 已知边界与演进方向
-
-- 识别模型没有针对校园流浪猫狗数据微调，复杂背景、遮挡、姿态变化和低清晰度会影响结果。
-- EfficientNet-B0 的狗品种分类来自 ImageNet 通用标签，许多高置信度结果不属于当前支持字典，因此会被归入“其他狗”。
-- 国际猫品种与校园常见的橘猫、狸花、奶牛、三花等毛色或花纹描述不完全对应。是否引入更贴近校园场景的业务标签，应在积累真实数据后再评估。
-- 当前多数动物档案只有一张图，不能计算可靠的跨图片 Top-1、Top-5 个体识别准确率，也不应仅凭当前数据重新校准 `0.90` 阈值。
-- 识别结果应始终保留人工确认入口；平台的价值在于流程可靠、数据规范、结果可控和模块可替换，而不是宣称模型能够独立完成档案或领养判断。
-
-## 11. 提交约定
-
-- 数据库结构和初始化数据以重新导出的 `animal-succour.sql` 为准，不新增迁移脚本。
-- 更新 SQL 时同步核对动物图片和特征向量。
+- `animal-succour.sql` 是数据库结构、数据与特征向量的导出基线，不新增或提交迁移脚本。
+- SQL 中 `animal_images.image_url` 引用的图片应在 `springboot/src/main/resources/static/uploads/images/` 中存在。
+- 导出 SQL 后，检查数据库引用、本地图片和 Git 跟踪图片的一致性。
 - Git 提交信息使用中文。
-- 不提交虚拟环境、模型权重缓存、临时文件、开发日志、个人材料和 IDE 配置。
+- 不提交开发日志、个人材料、虚拟环境、模型权重缓存、临时目录或 IDE 配置。
