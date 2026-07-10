@@ -17,15 +17,6 @@ export function getAnimalStats() {
     })
 }
 
-// 调用时只需要传 "猫" 或 "狗"
-export function listAnimalBySpecies(species) {
-    return request({
-        url: '/api/animal/list', // 后端接口地址不变
-        method: 'get',
-        params: { species: species }
-    })
-}
-
 // 根据审核状态查询
 export function listAnimalByStatus(status) {
     return request({
@@ -48,9 +39,6 @@ export function getAnimal(animalName){
 export function  addAnimal(data){
     const formData = new FormData()
     formData.append('name', data.name)
-    if (data.species) {
-        formData.append('species', data.species)
-    }
     if (data.categoryId) {
         formData.append('categoryId', data.categoryId)
     }

@@ -83,3 +83,6 @@ file:
   upload-path: springboot/src/main/resources/static/uploads
   image-path: springboot/src/main/resources/static/uploads/images
   temp-path: temp
+
+recognition:
+  match-threshold: 0.90

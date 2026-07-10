@@ -65,8 +65,8 @@
       <el-table-column label="动物名称" align="center" prop="name" min-width="90" show-overflow-tooltip />
       <el-table-column label="类别" align="center" prop="categoryName" width="82">
         <template #default="scope">
-          <el-tag :type="(scope.row.categoryId || scope.row.species) === 'cat' || scope.row.species === '猫' ? 'success' : 'primary'">
-            {{ scope.row.categoryName || scope.row.species }}
+          <el-tag :type="scope.row.categoryId === 'cat' ? 'success' : 'primary'">
+            {{ scope.row.categoryName }}
           </el-tag>
         </template>
       </el-table-column>

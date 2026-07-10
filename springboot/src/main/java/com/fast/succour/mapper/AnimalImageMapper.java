@@ -2,7 +2,7 @@ package com.fast.succour.mapper;
 
 import com.fast.succour.domain.AnimalImage;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -20,6 +20,8 @@ public interface AnimalImageMapper {
     List<AnimalImage> findAll();
 
     List<AnimalImage> findByCategoryId(String categoryId);
+
+    List<AnimalImage> findByCategoryIdAndBreedId(@Param("categoryId") String categoryId, @Param("breedId") String breedId);
 
     int insertAnimalImage(AnimalImage animalImage);
 

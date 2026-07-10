@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 public class Animal {
     private Long id;
     private String name;
-    private String species;
     private String categoryId;
     private String categoryCode;
     private String categoryName;

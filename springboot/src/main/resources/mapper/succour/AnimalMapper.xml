@@ -7,7 +7,6 @@
     <resultMap id="AnimalResult" type="com.fast.succour.domain.Animal">
         <id     property="id"             column="id"/>
         <result property="name"           column="name"/>
-        <result property="species"        column="species"/>
         <result property="categoryId"     column="category_id"/>
         <result property="categoryCode"   column="category_code"/>
         <result property="categoryName"   column="category_name"/>
@@ -26,7 +25,6 @@
     <select id="findById" parameterType="Long" resultMap="AnimalResult">
         SELECT a.id,
                a.name,
-               a.species,
                a.category_id,
                c.code as category_code,
                c.name as category_name,
@@ -51,7 +49,6 @@
         SELECT
         a.id,
         a.name,
-        a.species,
         a.category_id,
         c.code as category_code,
         c.name as category_name,
@@ -77,9 +74,6 @@
             </if>
             <if test="breedId != null and breedId != ''">
                 AND a.breed_id = #{breedId}
-            </if>
-            <if test="species != null and species != ''">
-                AND a.species = #{species}
             </if>
             <if test="isAdopted != null">
                 AND a.is_adopted = #{isAdopted}
@@ -108,7 +102,6 @@
         insert into animals
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="name != null and name != ''">name,</if>
-            <if test="species != null and species != ''">species,</if>
             <if test="categoryId != null and categoryId != ''">category_id,</if>
             <if test="breedId != null and breedId != ''">breed_id,</if>
             <if test="description != null and description != ''">description,</if>
@@ -119,7 +112,6 @@
         </trim>
         <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
             <if test="name != null and name != ''">#{name},</if>
-            <if test="species != null and species != ''">#{species},</if>
             <if test="categoryId != null and categoryId != ''">#{categoryId},</if>
             <if test="breedId != null and breedId != ''">#{breedId},</if>
             <if test="description != null and description != ''">#{description},</if>
@@ -135,7 +127,6 @@
         update animals
         <trim prefix="SET" suffixOverrides=",">
             <if test="name != null and name != ''">name = #{name},</if>
-            <if test="species != null and species != ''">species = #{species},</if>
             <if test="categoryId != null and categoryId != ''">category_id = #{categoryId},</if>
             <if test="breedId != null and breedId != ''">breed_id = #{breedId},</if>
             <if test="description != null and description != ''">description = #{description},</if>

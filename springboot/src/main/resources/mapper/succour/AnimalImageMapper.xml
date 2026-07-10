@@ -22,6 +22,14 @@
         where a.category_id = #{categoryId}
     </select>
 
+    <select id="findByCategoryIdAndBreedId" resultMap="AnimalImageResult">
+        select ai.id, ai.animal_id, ai.image_url, ai.feature_vector
+        from animal_images ai
+        inner join animals a on ai.animal_id = a.id
+        where a.category_id = #{categoryId}
+          and a.breed_id = #{breedId}
+    </select>
+
     <!--插入图片-->
     <insert id="insertAnimalImage" parameterType="AnimalImage" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO animal_images (animal_id, image_url,feature_vector)
