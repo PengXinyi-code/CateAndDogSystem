@@ -13,7 +13,7 @@
       </el-carousel>
       <div class="hero-bg-overlay"/>
       <div class="hero-glass-card">
-        <span class="badge">每一只校园流浪猫狗都值得被认真记录</span>
+        <span class="badge">💗 每一个生命都值得被温柔以待</span>
         <div class="hero-btn">
           <el-button class="custom-btn btn-filled" @click="toSection()">
             寻找你的缘分
@@ -33,12 +33,20 @@
               :http-request="handleRecognition"
               :before-upload="beforeUpload"
               :show-file-list="false"
+              :disabled="recognitionLoading"
               accept="image/*"
           >
-            <div v-if="!recognitionResult" class="upload-placeholder">
+            <div v-if="recognitionLoading" class="upload-placeholder">
+              <el-icon class="upload-icon is-loading"><Loading /></el-icon>
+              <p class="upload-text">识别中，请稍候</p>
+              <p class="upload-hint">正在定位猫狗主体并分析品种</p>
+            </div>
+            <div v-else-if="!recognitionResult" class="upload-placeholder">
               <el-icon class="upload-icon"><UploadFilled /></el-icon>
               <p class="upload-text">点击或拖拽上传图片</p>
               <p class="upload-hint">支持 JPG、PNG 格式</p>
+              <p class="upload-guide">建议上传单只猫狗的清晰正面照，识别更准确</p>
+              <p class="upload-guide upload-guide--sub">自动填充仅稳定支持部分常见品种，其他将归为其他猫/其他狗</p>
             </div>
             <div v-else class="recognition-result">
               <img :src="previewImage" class="preview-image" />
@@ -50,6 +58,7 @@
                   </h3>
                   <p class="animal-name">名称：{{ recognitionResult.animal.name }}</p>
                   <p>类别：{{ recognitionResult.animal.categoryName }}</p>
+                  <p v-if="recognitionResult.animal.breedName">品种：{{ recognitionResult.animal.breedName }}</p>
                   <p>位置：{{ recognitionResult.animal.location }}</p>
                   <p>领养状态：{{ recognitionResult.animal.isAdopted ? '已领养' : '待领养' }}</p>
                   <el-button type="primary" size="small" @click.stop="resetRecognition">
@@ -195,7 +204,7 @@ import {listAnimal, addAnimal} from "@/api/sccour/animals.js";
 import {listCategory} from "@/api/sccour/category.js";
 import {listBreed} from "@/api/sccour/breed.js";
 import {useRouter} from "vue-router";
-import {Female, House, Male, UploadFilled, CircleCheckFilled, WarningFilled, Plus} from "@element-plus/icons-vue";
+import {Female, House, Male, UploadFilled, CircleCheckFilled, WarningFilled, Plus, Loading} from "@element-plus/icons-vue";
 import {ElMessage} from "element-plus";
 import request from "@/utils/request";
 import {resolveImageUrl} from "@/utils/image";
@@ -210,6 +219,7 @@ const toSection = () => {
 const bannerList = ref([])
 const animalList = ref([])
 const recognitionResult = ref(null)
+const recognitionLoading = ref(false)
 const previewImage = ref('')
 const categoryOptions = ref([])
 const addBreedOptions = ref([])
@@ -258,15 +268,19 @@ const loadBreedOptions = (categoryId) => {
   return listBreed({ pageNum: 1, pageSize: 100, categoryId, enabled: true }).then(res => res.rows || [])
 }
 
-const handleAddCategoryChange = (categoryId) => {
+const handleAddCategoryChange = (categoryId, preferredBreedId = null) => {
   addForm.value.breedId = null
   addBreedOptions.value = []
   if (categoryId) {
     loadBreedOptions(categoryId).then(rows => {
       addBreedOptions.value = rows
-      const defaultBreed = rows.find(item => item.defaultBreed) || rows[0]
-      if (defaultBreed) {
-        addForm.value.breedId = defaultBreed.breedId
+      const preferredBreed = preferredBreedId
+          ? rows.find(item => item.breedId === preferredBreedId)
+          : null
+      const fallbackBreed = rows.find(item => item.defaultBreed) || rows[0]
+      const selectedBreed = preferredBreed || fallbackBreed
+      if (selectedBreed) {
+        addForm.value.breedId = selectedBreed.breedId
       }
     })
   }
@@ -289,9 +303,10 @@ const goToCreateProfile = () => {
 
 const applyDetectedCategory = () => {
   const categoryId = recognitionResult.value && recognitionResult.value.categoryId
+  const breedId = recognitionResult.value && recognitionResult.value.breedId
   if (categoryId) {
     addForm.value.categoryId = categoryId
-    handleAddCategoryChange(categoryId)
+    handleAddCategoryChange(categoryId, breedId)
   }
 }
 
@@ -398,10 +413,12 @@ const beforeUpload = (file) => {
     previewImage.value = e.target.result
   }
   reader.readAsDataURL(file)
+  recognitionResult.value = null
   return true
 }
 
 const handleRecognition = (options) => {
+  recognitionLoading.value = true
   const formData = new FormData()
   formData.append('file', options.file)
 
@@ -422,11 +439,14 @@ const handleRecognition = (options) => {
   }).catch(error => {
     ElMessage.error('识别失败：' + (error.message || '未知错误'))
     recognitionResult.value = null
+  }).finally(() => {
+    recognitionLoading.value = false
   })
 }
 
 const resetRecognition = () => {
   recognitionResult.value = null
+  recognitionLoading.value = false
   previewImage.value = ''
 }
 
@@ -560,10 +580,20 @@ onMounted(() => {
   text-align: center;
 }
 
+.recognition-upload .upload-placeholder {
+  width: auto;
+  height: auto;
+  min-height: 132px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 .upload-icon {
   font-size: 36px;
   color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .upload-text {
@@ -575,6 +605,20 @@ onMounted(() => {
 .upload-hint {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+.upload-guide {
+  max-width: 360px;
+  margin: 8px auto 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.upload-guide--sub {
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.62);
 }
 
 .recognition-result {

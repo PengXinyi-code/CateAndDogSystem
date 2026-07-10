@@ -65,6 +65,23 @@
         limit 1
     </select>
 
+    <select id="selectBreedByCategoryIdAndCode" resultMap="BreedResult">
+        select b.breed_id,
+               b.category_id,
+               c.name as category_name,
+               b.code,
+               b.name,
+               b.sort,
+               b.enabled,
+               b.is_default
+        from breed b
+        left join category c on b.category_id = c.category_id
+        where b.category_id = #{categoryId}
+          and b.code = #{code}
+          and b.enabled = 1
+        limit 1
+    </select>
+
     <insert id="insertBreed" parameterType="Breed">
         insert into breed
         <trim prefix="(" suffix=")" suffixOverrides=",">

@@ -3,6 +3,7 @@ package com.fast.succour.service.impl;
 import com.fast.succour.domain.Animal;
 import com.fast.succour.domain.AnimalImage;
 import com.fast.succour.domain.Breed;
+import com.fast.succour.domain.CatDogAnalysisResult;
 import com.fast.succour.domain.Category;
 import com.fast.succour.mapper.AnimalImageMapper;
 import com.fast.succour.mapper.AnimalMapper;
@@ -91,8 +92,13 @@ public class AnimalServiceImp implements AnimalService {
 
             System.out.println("图片保存路径: " + dest.getAbsolutePath());
 
-            // 用路径提特征
-            feature = pythonService.extractFeatureByPath(dest.getAbsolutePath());
+            try {
+                // 用 YOLO 裁剪后的猫狗主体图提特征，保持建档特征和识别特征一致
+                feature = extractSubjectFeature(dest.getAbsolutePath());
+            } catch (Exception e) {
+                deleteTempFile(dest);
+                throw e;
+            }
 
             savedImageUrl = "/uploads/images/" + fileName;
         } else if (imageUrl != null && !imageUrl.isEmpty()) {
@@ -108,7 +114,7 @@ public class AnimalServiceImp implements AnimalService {
 
             if (existingFile.exists()) {
                 try {
-                    feature = pythonService.extractFeatureByPath(existingFile.getAbsolutePath());
+                    feature = extractSubjectFeature(existingFile.getAbsolutePath());
                     System.out.println("特征提取成功，特征维度: " + (feature != null ? feature.length : "null"));
                 } catch (Exception e) {
                     System.err.println("特征提取失败: " + e.getMessage());
@@ -262,5 +268,33 @@ public class AnimalServiceImp implements AnimalService {
 
     private boolean hasText(String value) {
         return value != null && !value.trim().isEmpty();
+    }
+
+    private float[] extractSubjectFeature(String imagePath) throws Exception {
+        CatDogAnalysisResult analysis = pythonService.analyzeCatDogByPath(imagePath);
+        if (!Boolean.TRUE.equals(analysis.getCatDog())) {
+            throw new RuntimeException(analysis.getMessage() == null || analysis.getMessage().isEmpty()
+                    ? "未检测到猫狗，请上传猫或狗的清晰照片"
+                    : analysis.getMessage());
+        }
+        System.out.println("[animal-feature] categoryCode=" + analysis.getCategoryCode()
+                + " categoryConfidence=" + analysis.getCategoryConfidence()
+                + " rawBreedLabel=" + analysis.getRawBreedLabel()
+                + " breedCode=" + analysis.getBreedCode()
+                + " breedConfidence=" + analysis.getBreedConfidence());
+
+        File cropFile = hasText(analysis.getCropPath()) ? new File(analysis.getCropPath()) : null;
+        try {
+            String featurePath = cropFile != null ? cropFile.getAbsolutePath() : imagePath;
+            return pythonService.extractFeatureByPath(featurePath);
+        } finally {
+            deleteTempFile(cropFile);
+        }
+    }
+
+    private void deleteTempFile(File file) {
+        if (file != null && file.exists()) {
+            file.delete();
+        }
     }
 }

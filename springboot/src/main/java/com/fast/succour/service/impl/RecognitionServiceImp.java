@@ -2,10 +2,14 @@ package com.fast.succour.service.impl;
 
 import com.fast.succour.domain.Animal;
 import com.fast.succour.domain.AnimalImage;
-import com.fast.succour.domain.CatDogDetectionResult;
+import com.fast.succour.domain.Breed;
+import com.fast.succour.domain.CatDogAnalysisResult;
+import com.fast.succour.domain.Category;
 import com.fast.succour.domain.RecognitionResult;
 import com.fast.succour.mapper.AnimalImageMapper;
 import com.fast.succour.mapper.AnimalMapper;
+import com.fast.succour.mapper.BreedMapper;
+import com.fast.succour.mapper.CategoryMapper;
 import com.fast.succour.service.PythonService;
 import com.fast.succour.service.RecognitionService;
 import com.fast.system.general.utils.ProjectPathUtils;
@@ -30,9 +34,16 @@ public class RecognitionServiceImp implements RecognitionService {
     private AnimalMapper animalMapper;
 
     @Autowired
+    private CategoryMapper categoryMapper;
+
+    @Autowired
+    private BreedMapper breedMapper;
+
+    @Autowired
     private PythonService pythonService;
 
-    private static final double THRESHOLD = 0.90;
+    @Value("${recognition.match-threshold:0.90}")
+    private double matchThreshold;
 
     @Override
     public RecognitionResult recognize(MultipartFile file) throws Exception {
@@ -42,19 +53,35 @@ public class RecognitionServiceImp implements RecognitionService {
 
         RecognitionResult result = new RecognitionResult();
         File dest = saveTempFile(file);
+        File cropFile = null;
 
         try {
-            CatDogDetectionResult detection = pythonService.detectCatDogByPath(dest.getAbsolutePath());
-            fillDetectionResult(result, detection);
+            CatDogAnalysisResult analysis = pythonService.analyzeCatDogByPath(dest.getAbsolutePath());
+            fillAnalysisResult(result, analysis);
 
-            if (!Boolean.TRUE.equals(detection.getCatDog())) {
+            if (!Boolean.TRUE.equals(analysis.getCatDog())) {
                 result.setMatched(false);
-                result.setMessage(defaultMessage(detection.getMessage(), "未检测到猫狗，请上传猫或狗的清晰照片"));
+                result.setMessage(defaultMessage(analysis.getMessage(), "未检测到猫狗，请上传猫或狗的清晰照片"));
                 return result;
             }
 
-            float[] queryFeature = pythonService.extractFeatureByPath(dest.getAbsolutePath());
-            List<AnimalImage> images = imageMapper.findByCategoryId(detection.getCategoryId());
+            Category category = resolveCategory(analysis);
+            Breed breed = resolveBreed(category.getCategoryId(), analysis.getBreedCode());
+            fillDictionaryResult(result, category, breed);
+            System.out.println("[recognition] categoryCode=" + analysis.getCategoryCode()
+                    + " categoryConfidence=" + analysis.getCategoryConfidence()
+                    + " rawBreedLabel=" + analysis.getRawBreedLabel()
+                    + " breedCode=" + analysis.getBreedCode()
+                    + " breedConfidence=" + analysis.getBreedConfidence()
+                    + " resolvedBreedId=" + breed.getBreedId()
+                    + " resolvedBreedName=" + breed.getName());
+
+            String featurePath = hasText(analysis.getCropPath()) ? analysis.getCropPath() : dest.getAbsolutePath();
+            if (hasText(analysis.getCropPath())) {
+                cropFile = new File(analysis.getCropPath());
+            }
+            float[] queryFeature = pythonService.extractFeatureByPath(featurePath);
+            List<AnimalImage> images = imageMapper.findByCategoryIdAndBreedId(category.getCategoryId(), breed.getBreedId());
 
             double maxSim = 0;
             Animal bestAnimal = null;
@@ -67,7 +94,8 @@ public class RecognitionServiceImp implements RecognitionService {
                 float[] dbFeature = VectorUtil.bytesToFloatArray(img.getFeatureVector());
                 double sim = VectorUtil.cosineSimilarity(queryFeature, dbFeature);
 
-                System.out.println("animal_id=" + img.getAnimalId() + " sim=" + sim);
+                // 逐条相似度日志输出量较大，当前优先观察猫狗检测框和裁剪质量，必要时再临时打开。
+                // System.out.println("animal_id=" + img.getAnimalId() + " sim=" + sim);
 
                 if (sim > maxSim) {
                     maxSim = sim;
@@ -75,7 +103,8 @@ public class RecognitionServiceImp implements RecognitionService {
                 }
             }
 
-            if (maxSim > THRESHOLD) {
+            result.setSimilarity(maxSim);
+            if (maxSim > matchThreshold) {
                 result.setMatched(true);
                 result.setAnimal(bestAnimal);
                 result.setMessage("识别成功");
@@ -87,6 +116,7 @@ public class RecognitionServiceImp implements RecognitionService {
             return result;
         } finally {
             deleteTempFile(dest);
+            deleteTempFile(cropFile);
         }
     }
 
@@ -104,16 +134,60 @@ public class RecognitionServiceImp implements RecognitionService {
         return dest;
     }
 
-    private void fillDetectionResult(RecognitionResult result, CatDogDetectionResult detection) {
-        result.setCatDog(detection.getCatDog());
-        result.setCategoryId(detection.getCategoryId());
-        result.setCategoryCode(detection.getCategoryCode());
-        result.setCategoryName(detection.getCategoryName());
-        result.setConfidence(detection.getConfidence());
+    private void fillAnalysisResult(RecognitionResult result, CatDogAnalysisResult analysis) {
+        result.setCatDog(analysis.getCatDog());
+        result.setCategoryId(analysis.getCategoryId());
+        result.setCategoryCode(analysis.getCategoryCode());
+        result.setCategoryName(analysis.getCategoryName());
+        result.setBreedCode(analysis.getBreedCode());
+        result.setBreedName(analysis.getBreedName());
+        result.setCategoryConfidence(analysis.getCategoryConfidence());
+        result.setBreedConfidence(analysis.getBreedConfidence());
+        result.setConfidence(analysis.getCategoryConfidence());
+        result.setRawDetectLabel(analysis.getRawDetectLabel());
+        result.setRawBreedLabel(analysis.getRawBreedLabel());
+    }
+
+    private void fillDictionaryResult(RecognitionResult result, Category category, Breed breed) {
+        result.setCategoryId(category.getCategoryId());
+        result.setCategoryCode(category.getCode());
+        result.setCategoryName(category.getName());
+        result.setBreedId(breed.getBreedId());
+        result.setBreedCode(breed.getCode());
+        result.setBreedName(breed.getName());
+    }
+
+    private Category resolveCategory(CatDogAnalysisResult analysis) {
+        Category category = hasText(analysis.getCategoryCode())
+                ? categoryMapper.selectCategoryByCode(analysis.getCategoryCode())
+                : null;
+        if (category == null || Boolean.FALSE.equals(category.getEnabled())) {
+            throw new RuntimeException("未识别到有效的猫狗类别");
+        }
+        return category;
+    }
+
+    private Breed resolveBreed(String categoryId, String breedCode) {
+        Breed breed = hasText(breedCode)
+                ? breedMapper.selectBreedByCategoryIdAndCode(categoryId, breedCode)
+                : null;
+        if (breed != null) {
+            return breed;
+        }
+
+        Breed defaultBreed = breedMapper.selectDefaultBreedByCategoryId(categoryId);
+        if (defaultBreed == null) {
+            throw new RuntimeException("未找到当前类别的默认品种");
+        }
+        return defaultBreed;
     }
 
     private String defaultMessage(String message, String fallback) {
         return message == null || message.isEmpty() ? fallback : message;
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.trim().isEmpty();
     }
 
     private void deleteTempFile(File dest) {

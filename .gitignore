@@ -39,7 +39,11 @@ __pycache__/
 .mypy_cache/
 .venv/
 venv/
+/yolov8n.pt
+/yolov8s.pt
 photo_recognize/*.pt
+photo_recognize/models/
+photo_recognize/*.pth
 
 # Runtime uploads generated while testing
 springboot/src/main/resources/static/uploads/images/[0-9a-f][0-9a-f]*.jpg
@@ -60,3 +64,5 @@ Desktop.ini
 
 # Generated local test artifacts
 /test-artifacts/
+photo_recognize/*_report.json
+photo_recognize/*.log
