@@ -199,10 +199,10 @@
 </template>
 
 <script setup>
-import {listBanner} from "@/api/sccour/banner.js";
-import {listAnimal, addAnimal} from "@/api/sccour/animals.js";
-import {listCategory} from "@/api/sccour/category.js";
-import {listBreed} from "@/api/sccour/breed.js";
+import {listBanner} from "@/api/animal/banner.js";
+import {listAnimal, addAnimal} from "@/api/animal/animals.js";
+import {listCategory} from "@/api/animal/category.js";
+import {listBreed} from "@/api/animal/breed.js";
 import {useRouter} from "vue-router";
 import {Female, House, Male, UploadFilled, CircleCheckFilled, WarningFilled, Plus, Loading} from "@element-plus/icons-vue";
 import {ElMessage} from "element-plus";

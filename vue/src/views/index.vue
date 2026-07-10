@@ -79,9 +79,9 @@
 <script setup>
 import { ref, onMounted, onActivated } from 'vue'
 import { Medal, User, Clock, CircleCheck } from "@element-plus/icons-vue";
-import { listAnimal, getAnimalStats } from "@/api/sccour/animals.js";
+import { listAnimal, getAnimalStats } from "@/api/animal/animals.js";
 // 新增：导入领养申请接口（请确保接口路径与你的后端匹配）
-import { listAdopt } from "@/api/sccour/adopt.js";
+import { listAdopt } from "@/api/animal/adopt.js";
 import * as echarts from "echarts";
 
 const animalCount = ref(0);

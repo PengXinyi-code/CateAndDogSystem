@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fast.animal.mapper.BreedMapper">
+    <resultMap id="BreedResult" type="Breed">
+        <id property="breedId" column="breed_id"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="sort" column="sort"/>
+        <result property="enabled" column="enabled"/>
+        <result property="defaultBreed" column="is_default"/>
+    </resultMap>
+
+    <select id="selectBreedList" parameterType="Breed" resultMap="BreedResult">
+        select b.breed_id,
+               b.category_id,
+               c.name as category_name,
+               b.code,
+               b.name,
+               b.sort,
+               b.enabled,
+               b.is_default
+        from breed b
+        left join category c on b.category_id = c.category_id
+        <where>
+            <if test="categoryId != null and categoryId != ''">and b.category_id = #{categoryId}</if>
+            <if test="name != null and name != ''">and b.name like concat('%', #{name}, '%')</if>
+            <if test="enabled != null">and b.enabled = #{enabled}</if>
+        </where>
+        order by b.category_id, b.sort, b.name
+    </select>
+
+    <select id="selectBreedByBreedId" parameterType="String" resultMap="BreedResult">
+        select b.breed_id,
+               b.category_id,
+               c.name as category_name,
+               b.code,
+               b.name,
+               b.sort,
+               b.enabled,
+               b.is_default
+        from breed b
+        left join category c on b.category_id = c.category_id
+        where b.breed_id = #{breedId}
+    </select>
+
+    <select id="selectDefaultBreedByCategoryId" parameterType="String" resultMap="BreedResult">
+        select b.breed_id,
+               b.category_id,
+               c.name as category_name,
+               b.code,
+               b.name,
+               b.sort,
+               b.enabled,
+               b.is_default
+        from breed b
+        left join category c on b.category_id = c.category_id
+        where b.category_id = #{categoryId}
+          and b.enabled = 1
+          and b.is_default = 1
+        order by b.sort
+        limit 1
+    </select>
+
+    <select id="selectBreedByCategoryIdAndCode" resultMap="BreedResult">
+        select b.breed_id,
+               b.category_id,
+               c.name as category_name,
+               b.code,
+               b.name,
+               b.sort,
+               b.enabled,
+               b.is_default
+        from breed b
+        left join category c on b.category_id = c.category_id
+        where b.category_id = #{categoryId}
+          and b.code = #{code}
+          and b.enabled = 1
+        limit 1
+    </select>
+
+    <insert id="insertBreed" parameterType="Breed">
+        insert into breed
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="breedId != null and breedId != ''">breed_id,</if>
+            <if test="categoryId != null and categoryId != ''">category_id,</if>
+            <if test="code != null and code != ''">code,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="sort != null">sort,</if>
+            <if test="enabled != null">enabled,</if>
+            <if test="defaultBreed != null">is_default,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="breedId != null and breedId != ''">#{breedId},</if>
+            <if test="categoryId != null and categoryId != ''">#{categoryId},</if>
+            <if test="code != null and code != ''">#{code},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="sort != null">#{sort},</if>
+            <if test="enabled != null">#{enabled},</if>
+            <if test="defaultBreed != null">#{defaultBreed},</if>
+        </trim>
+    </insert>
+
+    <update id="updateBreed" parameterType="Breed">
+        update breed
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="categoryId != null and categoryId != ''">category_id = #{categoryId},</if>
+            <if test="code != null and code != ''">code = #{code},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="enabled != null">enabled = #{enabled},</if>
+            <if test="defaultBreed != null">is_default = #{defaultBreed},</if>
+        </trim>
+        where breed_id = #{breedId}
+    </update>
+
+    <delete id="deleteBreedByBreedIds" parameterType="String">
+        delete from breed where breed_id in
+        <foreach collection="array" item="breedId" open="(" separator="," close=")">
+            #{breedId}
+        </foreach>
+    </delete>
+</mapper>

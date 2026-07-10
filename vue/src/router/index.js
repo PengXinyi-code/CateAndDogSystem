@@ -89,7 +89,7 @@ export const constantRoutes = [
     children: [
       {
         path: 'list',
-        component: () => import('@/views/succour/record/index.vue'),
+        component: () => import('@/views/animal/record/index.vue'),
         name: 'AdoptionRecord',
         meta: { title: '领养记录', icon: 'document' }
       }

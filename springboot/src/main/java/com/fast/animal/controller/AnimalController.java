@@ -1,0 +1,88 @@
+package com.fast.animal.controller;
+
+import com.fast.animal.domain.Animal;
+import com.fast.animal.service.AnimalService;
+import com.fast.system.general.core.controller.BaseController;
+import com.fast.system.general.core.domain.AjaxResult;
+import com.fast.system.general.core.page.TableDataInfo;
+import jakarta.annotation.Resource;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/animals")
+public class AnimalController extends BaseController {
+
+    @Resource
+    private AnimalService animalService;
+
+    /**
+     * 查询动物列表
+     * GET /api/animals/list
+     */
+    @GetMapping("/list")
+    public TableDataInfo list(Animal animal) {
+        startPage();
+        List<Animal> list = animalService.selectAnimalList(animal);
+        return getDataTable(list);
+    }
+
+    /**
+     * 查询动物统计数据
+     * GET /api/animals/stats
+     */
+    @GetMapping("/stats")
+    public AjaxResult stats() {
+        Map<String, Object> stats = animalService.selectAnimalStats();
+        return success(stats);
+    }
+
+    /**
+     * 根据ID查询动物
+     * GET /api/animals/1
+     */
+    @GetMapping("/{id}")
+    public AjaxResult findById(@PathVariable Long id) {
+        return success(animalService.findById(id));
+    }
+
+    /**
+     * 新增动物信息
+     * POST /api/animals/add
+     */
+    @PostMapping("/add")
+    public AjaxResult insertAnimal(
+            @ModelAttribute Animal animal,
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestParam(value = "imageUrl", required = false) String imageUrl
+    ) {
+        try {
+            animalService.insertAnimal(animal, file, imageUrl);
+            return success("添加成功");
+        } catch (Exception e) {
+            return error("添加失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 修改动物信息
+     * PUT /api/animals
+     */
+    @PutMapping
+    public AjaxResult updateAnimal(@RequestBody @Validated Animal animal) {
+        return toAjax(animalService.updateAnimal(animal));
+    }
+
+    /**
+     * 删除动物信息（支持批量）
+     * DELETE /api/animals/1,2,3
+     */
+    @DeleteMapping("/{animalIds}")
+    public AjaxResult remove(@PathVariable String[] animalIds) {
+        return toAjax(animalService.deleteAnimalByAnimalIds(animalIds));
+    }
+}

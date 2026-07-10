@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fast.animal.mapper.AdoptionRecordMapper">
+
+    <resultMap id="AdoptionRecordResult" type="com.fast.animal.domain.AdoptionRecord">
+        <id property="id" column="id"/>
+        <result property="animalId" column="animal_id"/>
+        <result property="animalName" column="animal_name"/>
+        <result property="userId" column="user_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="phone" column="phone"/>
+        <result property="email" column="email"/>
+        <result property="address" column="address"/>
+        <result property="occupation" column="occupation"/>
+        <result property="adoptTime" column="adopt_time"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <insert id="insertAdoptionRecord" parameterType="com.fast.animal.domain.AdoptionRecord">
+        INSERT INTO adoption_record (
+        animal_id,
+        animal_name,
+        user_id,
+        user_name,      <!-- 添加 -->
+        phone,
+        email,
+        address,        <!-- 添加 -->
+        occupation,
+        adopt_time,
+        create_time
+        ) VALUES (
+        #{animalId},
+        #{animalName},
+        #{userId},
+        #{userName},    <!-- 添加 -->
+        #{phone},
+        #{email},
+        #{address},     <!-- 添加 -->
+        #{occupation},
+        #{adoptTime},
+        NOW()
+        )
+    </insert>
+
+    <select id="selectAdoptionRecordList" parameterType="com.fast.animal.domain.AdoptionRecord" resultMap="AdoptionRecordResult">
+        SELECT * FROM adoption_record
+        <where>
+            <if test="animalId != null and animalId != ''">
+                AND animal_id = #{animalId}
+            </if>
+            <if test="animalName != null and animalName != ''">
+                AND animal_name LIKE CONCAT('%', #{animalName}, '%')
+            </if>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="phone != null and phone != ''">
+                AND phone LIKE CONCAT('%', #{phone}, '%')
+            </if>
+            <if test="email != null and email != ''">
+                AND email LIKE CONCAT('%', #{email}, '%')
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectAdoptionRecordById" parameterType="java.lang.Long" resultMap="AdoptionRecordResult">
+        SELECT * FROM adoption_record WHERE id = #{id}
+    </select>
+
+    <select id="selectAdoptionRecordByAnimalId" parameterType="java.lang.String" resultMap="AdoptionRecordResult">
+        SELECT * FROM adoption_record WHERE animal_id = #{animalId} ORDER BY create_time DESC LIMIT 1
+    </select>
+
+</mapper>

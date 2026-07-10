@@ -106,14 +106,14 @@ const handleLogin = () => {
             userStore.login(loginForm.value).then(() => {
                 // 获取用户信息以检查角色
                 userStore.getInfo().then(res => {
-                    const roles = res.user.roles || []
+                    const roles = userStore.roles
                     let redirectPath = redirect.value || "/"
 
                     // 根据角色确定跳转路径
-                    if (roles.some(role => role.roleName === 'admin')) {
+                    if (roles.includes('admin')) {
                         // admin角色跳转到默认路径
                         redirectPath = "/index"
-                    } else if (roles.some(role => role.roleName === 'user')) {
+                    } else {
                         // 用户角色跳转到/dashboard路径
                         redirectPath = "/user/home"
                     }

@@ -125,9 +125,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { listAnimal } from '@/api/sccour/animals'
-import { listCategory } from '@/api/sccour/category'
-import { listBreed } from '@/api/sccour/breed'
+import { listAnimal } from '@/api/animal/animals'
+import { listCategory } from '@/api/animal/category'
+import { listBreed } from '@/api/animal/breed'
 import { Picture, Location, Clock } from '@element-plus/icons-vue'
 import {useRouter} from 'vue-router'
 import {resolveImageUrl} from '@/utils/image'

@@ -38,11 +38,13 @@ const useUserStore = defineStore(
             const user = res.user
             let avatar = user.avatar || ""
             avatar = avatar ? resolveImageUrl(avatar) : defAva
-            if (res.roles && res.roles.length > 0) { // 验证返回的roles是否是一个非空数组
-              this.roles = res.roles
-              this.permissions = res.permissions
+            const roles = res.roles || user.roles || []
+            if (roles.length > 0) {
+              this.roles = roles.map(role => role.roleKey || role.roleName)
+              this.permissions = res.permissions || []
             } else {
               this.roles = ['ROLE_DEFAULT']
+              this.permissions = res.permissions || []
             }
             this.id = user.userId
             this.name = user.userName
