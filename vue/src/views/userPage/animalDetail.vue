@@ -86,8 +86,8 @@
 import {ref, onMounted, reactive} from 'vue'
 import {useRouter, useRoute} from 'vue-router'
 import {ElMessage} from 'element-plus'
-import {getAnimal} from "@/api/sccour/animals.js";
-import {addAdopt} from "@/api/sccour/adopt.js";
+import {getAnimal} from "@/api/animal/animals.js";
+import {addAdopt} from "@/api/animal/adopt.js";
 import {resolveImageUrl} from "@/utils/image";
 
 const baseUrl = import.meta.env.VITE_APP_BASE_API

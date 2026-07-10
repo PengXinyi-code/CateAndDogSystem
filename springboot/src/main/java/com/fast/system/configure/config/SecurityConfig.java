@@ -89,7 +89,7 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.GET, "/", "/*.html", "/**.html", "/**.css", "/**.js", "/profile/**").permitAll()
                             .requestMatchers("/druid/**").permitAll()
                             // ✅ 添加这一行：放行领养记录接口
-                            .requestMatchers("/succour/adopt/record/**").permitAll()
+                            .requestMatchers("/api/adoptions/record/**").permitAll()
                             // 除上面外的所有请求全部需要鉴权认证
                             .anyRequest().authenticated();
                 })

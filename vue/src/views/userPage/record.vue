@@ -94,7 +94,7 @@
 import {ref, onMounted} from 'vue'
 import {useRouter} from 'vue-router'
 import {ElMessage, ElMessageBox} from 'element-plus'
-import {listAdopt, revoke} from "@/api/sccour/adopt.js";
+import {listAdopt, revoke} from "@/api/animal/adopt.js";
 
 // 使用 useRouter
 const router = useRouter()

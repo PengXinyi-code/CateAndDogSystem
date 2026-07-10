@@ -75,6 +75,7 @@ public class SysLoginController {
         }
         AjaxResult ajax = AjaxResult.success();
         ajax.put("user", user);
+        ajax.put("roles", user.getRoles());
         ajax.put("permissions", permissions);
         return ajax;
     }

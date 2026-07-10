@@ -11,12 +11,18 @@ const isWhiteList = (path) => {
   return whiteList.includes(path)
 }
 
+const isAdmin = (roles) => roles.includes('admin')
+
+const getDefaultPath = (roles) => isAdmin(roles) ? '/index' : '/user/home'
+
+const shouldRedirectToUserHome = (path, roles) => !isAdmin(roles) && (path === '/' || path === '/index')
+
 router.beforeEach((to, from, next) => {
   if (getToken()) {
     to.meta.title
     /* has token*/
     if (to.path === '/login') {
-      next({ path: '/' })
+      next({ path: useUserStore().roles.length ? getDefaultPath(useUserStore().roles) : '/' })
     } else if (isWhiteList(to.path)) {
       next()
     } else {
@@ -32,7 +38,10 @@ router.beforeEach((to, from, next) => {
                 router.addRoute(route) // 动态添加可访问路由表
               }
             })
-            next({ ...to, replace: true }) // hack方法 确保addRoutes已完成
+            const targetPath = shouldRedirectToUserHome(to.path, useUserStore().roles)
+              ? getDefaultPath(useUserStore().roles)
+              : to.path
+            next({ path: targetPath, query: to.query, replace: true })
           })
         }).catch(err => {
           useUserStore().logOut().then(() => {
@@ -40,6 +49,8 @@ router.beforeEach((to, from, next) => {
             next({ path: '/' })
           })
         })
+      } else if (shouldRedirectToUserHome(to.path, useUserStore().roles)) {
+        next({ path: getDefaultPath(useUserStore().roles), replace: true })
       } else {
         next()
       }
